@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <Nullable>enable</Nullable>
+        <TargetFramework>net6.0</TargetFramework>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+        <DefineConstants>TRACE;RELEASE;NETCOREAPP1_1</DefineConstants>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+        <DebugType>full</DebugType>
+        <DebugSymbols>true</DebugSymbols>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Hl7.Fhir.R4" Version="5.4.0" />
+        <PackageReference Include="MassTransit" Version="8.0.16" />
+        <PackageReference Include="MassTransit.RabbitMQ" Version="8.0.16" />
+        <PackageReference Include="Firely.Server.Contracts" Version="1.0.0" />
+    </ItemGroup>
+
+</Project>
