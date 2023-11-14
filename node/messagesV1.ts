@@ -2,7 +2,7 @@
 export interface ResourceReference {
     resourceType: string
     resourceId: string
-    version?: string
+    version: string | null
 }
 
 export interface RetrievePlanItem {
@@ -37,16 +37,12 @@ export interface StorePlanItem {
     resource: string
     resourceType?: string
     resourceId?: string
-    currentVersion?: string
-    operation: StorePlanOperation
-}
-
-export interface StorePlan {
-    instructions: Array<StorePlanItem>
+    currentVersion?: string | null
+    operation: string
 }
 
 export interface ExecuteStorePlanCommand {
-    plan: StorePlan
+    instructions: Array<StorePlanItem>
 }
 
 export interface StorePlanResultItem {

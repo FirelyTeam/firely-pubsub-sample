@@ -137,9 +137,9 @@ async function runRetrievePlan(retrievePlanItems: RetrievePlanItem[]): Promise<v
     try {
         const retrievePlanCommand = CreateRetrievePlanCommand(retrievePlanItems)
         console.log('Running plan ' + JSON.stringify(retrievePlanCommand));
-        const retrievePlanResponse = await retrievePlanClient.getResponse(retrievePlanCommand);
+        const responseContext = await retrievePlanClient.getResponse(retrievePlanCommand);
 
-        console.log(retrievePlanResponse.toString());
+        console.log(JSON.stringify(responseContext.message));
     } catch (e) {
         console.log(e);
     }
@@ -149,9 +149,9 @@ async function runExecuteStorePlan(storePlanItems: StorePlanItem[]): Promise<voi
     try {
         const executeStorePlan = CreateExecuteStorePlanCommand(storePlanItems)
         console.log('Running plan ' + JSON.stringify(executeStorePlan));
-        const storePlanResponse = await storePlanClient.getResponse(executeStorePlan);
+        const responseContext = await storePlanClient.getResponse(executeStorePlan);
 
-        console.log(storePlanResponse.toString());
+        console.log(JSON.stringify(responseContext.message));
     } catch (e) {
         console.log(e);
     }
@@ -159,10 +159,10 @@ async function runExecuteStorePlan(storePlanItems: StorePlanItem[]): Promise<voi
 
 function buildRetrievePlanItem(args: string[])
 {
-    if (args.length < 2)
+    if (args.length < 1)
         return null;
     const id = args[0];
-    const vid = args[1];
+    const vid = args.length >= 2 ? args[1] : null;
 
     return CreateRetrievePlanItem(itemId++, "Patient", id, vid)
 }
@@ -187,10 +187,10 @@ function buildStorePlanItem(command: string, args: string[]): StorePlanItem | nu
 // Define the functions for Delete, Create, and Update operations
 function deletePatient(parameters: string[]): StorePlanItem | null {
     // Implement the logic for delete operation here
-    if (parameters.length < 2)
+    if (parameters.length < 1)
         return null;
     const id = parameters[0];
-    const vid = parameters[1];
+    const vid = (parameters.length >= 2) ? parameters[1] : null;
     return CreateStorePlanItem(itemId++, StorePlanOperation.Delete, null, "Patient", id, vid);
 }
 

@@ -27,7 +27,7 @@ export function CreateRetrievePlanItem( itemId: number, resourceType?: string | 
     const resourceReference = {
         "resourceType": String(resourceType),
         "resourceId": String(resourceId),
-        "version": String(version),
+        "version": (version == undefined) ? null : version,
     }
 
     return {
@@ -49,15 +49,13 @@ export function CreateStorePlanItem( itemId: number, operation: StorePlanOperati
         "resource": String(resource),
         "resourceType": String(resourceType),
         "resourceId": String(resourceId),
-        "currentVersion": String(currentVersion),
-        "operation": operation
+        "currentVersion": (currentVersion == undefined) ? null : currentVersion,
+        "operation":  StorePlanOperation[operation]
     };
 }
 
 export function CreateExecuteStorePlanCommand(  storePlanItems : Array<StorePlanItem>) : ExecuteStorePlanCommand {
     return {
-        plan: {
-            instructions: storePlanItems
-        }
+        instructions: storePlanItems
     };
 }
