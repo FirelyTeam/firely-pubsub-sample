@@ -1,4 +1,30 @@
 
+export interface ResourceReference {
+    resourceType: string
+    resourceId: string
+    version?: string
+}
+
+export interface RetrievePlanItem {
+    itemId: string
+    reference: ResourceReference
+}
+
+export interface RetrievePlanCommand {
+    instructions: Array<RetrievePlanItem>
+}
+
+export interface RetrievePlanResultItem {
+    itemId?: string
+    resource?: string
+    status: number
+    message: string
+}
+
+export interface  RetrievePlanResponse {
+    Items: Array<RetrievePlanResultItem>
+}
+
 export enum StorePlanOperation {
     Create = 1,
     Update = 2,
@@ -19,7 +45,7 @@ export interface StorePlan {
     instructions: Array<StorePlanItem>
 }
 
-export interface ExecuteStorePlan {
+export interface ExecuteStorePlanCommand {
     plan: StorePlan
 }
 
