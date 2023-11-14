@@ -191,7 +191,7 @@ function deletePatient(parameters: string[]): StorePlanItem | null {
         return null;
     const id = parameters[0];
     const vid = parameters[1];
-    return CreateStorePlanItem(itemId++, StorePlanOperation.Delete, null, "Patient", id);
+    return CreateStorePlanItem(itemId++, StorePlanOperation.Delete, null, "Patient", id, vid);
 }
 
 function createPatient(parameters: string[]): StorePlanItem | null
@@ -216,7 +216,7 @@ function updatePatient(parameters: string[], upsert: boolean): StorePlanItem | n
     const currentVid = parameters[3];
     const p = CreatePatient(id, newVid, family);
 
-    return CreateStorePlanItem(itemId++, upsert ? StorePlanOperation.Upsert : StorePlanOperation.Update, p, "Patient", id);
+    return CreateStorePlanItem(itemId++, upsert ? StorePlanOperation.Upsert : StorePlanOperation.Update, p, "Patient", id, currentVid);
 }
 
 processUserInput()
