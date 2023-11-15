@@ -58,3 +58,23 @@ export interface StorePlanResult {
 export interface ExecuteStorePlanResponse {
     result: StorePlanResult
 }
+
+
+export interface ResourceChange {
+    reference: ResourceReference
+    resource?:  string | null
+    changeType:  string
+}
+
+export interface ResourceChangeLight {
+    reference: ResourceReference
+    changeType:  string
+}
+
+export interface ResourcesChangedEvent {
+    changes: Array<ResourceChange>
+}
+
+export interface ResourcesChangedLightEvent {
+    changes: Array<ResourceChangeLight>
+}

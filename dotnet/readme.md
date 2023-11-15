@@ -1,20 +1,12 @@
 # Introduction
 This directory contains a demo client displaying how to use the PubSub feature of `Firely Server`.
-The client is written in `typescript` running on `node.js` and using  [MassTransit-JS](
-https://github.com/MassTransit/MassTransit-JS).
-
-The `MassTransit-js` contract messages are defined in `messagesV1.ts`.
-
-Utility functions for integrations tests are in `utils.ts`.
+The client is written in `C#` running on `dotnet core`. and using the [Firely Server Contract nuget package](https://www.nuget.org/packages/Firely.Server.Contracts).
 
 # Build 
-
-`Node.js` version used for building the integration tests is `v18.14.2`
-To build the integrations tests open a `bash/WSL/Powershell/cmd` terminal and run following command
-
+Run the following command to build the project.
 ```
-npm install
-npm run build
+dotnet restore
+dotnet build
 ```
 # Usage
 
@@ -35,7 +27,7 @@ Start Firely server and make sure to enable the PubSub in the settings file as d
 ## Using the client
 Once RabbitMq and Firely Server are running, you can start the client using:
 ```
-npm run start
+dotnet run --project Firely.Server.MessageSender
 ```
 You then got an CLI interface where you can enter command and then get corresponding response
 and notification.

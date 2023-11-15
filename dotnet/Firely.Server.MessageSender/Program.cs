@@ -28,9 +28,14 @@ public static class Program
                 o.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase, false));
                 return o;
             });
-            cfg.ReceiveEndpoint("dotnet-test-client", e =>
+            cfg.ReceiveEndpoint("dotnet-resource-change", e =>
             {
                 e.Consumer(() => new ResourcesChangedConsumer());
+                e.PrefetchCount = 64;
+            });
+            cfg.ReceiveEndpoint("dotnet-resource-change-light", e =>
+            {
+                e.Consumer(() => new ResourcesChangedLightConsumer());
                 e.PrefetchCount = 64;
             });
         });
@@ -261,9 +266,22 @@ public static class Program
     }
 }
 
-internal class ResourcesChangedConsumer :  IConsumer<ResourcesChangedLightEvent>
+internal class ResourcesChangedLightConsumer :  IConsumer<ResourcesChangedLightEvent>
 {
     public T.Task Consume(ConsumeContext<ResourcesChangedLightEvent> context)
+    {
+        if (context.Message is { } changes)
+        {
+            Console.WriteLine($"Received changed light event: {changes}.");
+        }
+
+        return T.Task.CompletedTask;
+    }
+}
+
+internal class ResourcesChangedConsumer :  IConsumer<ResourcesChangedEvent>
+{
+    public T.Task Consume(ConsumeContext<ResourcesChangedEvent> context)
     {
         if (context.Message is { } changes)
         {

@@ -1,6 +1,6 @@
 import {
     ExecuteStorePlanCommand,
-    ExecuteStorePlanResponse, RetrievePlanCommand,
+    ExecuteStorePlanResponse, ResourcesChangedEvent, ResourcesChangedLightEvent, RetrievePlanCommand,
     RetrievePlanItem, RetrievePlanResponse,
     StorePlanItem,
     StorePlanOperation
@@ -15,10 +15,56 @@ import {
     CreateRetrievePlanItem,
     CreateStorePlanItem
 } from './utils';
+import * as amqplib from 'amqplib';
 
 MessageType.setDefaultNamespace('Firely.Server.Contracts.Messages.V1');
 
-const bus = masstransit();
+const busOption = {
+    host: 'localhost',
+    virtualHost: '/',
+    port: 5672
+}
+
+const bus = masstransit(busOption);
+
+const resourcesChangedEventType = new MessageType('ResourcesChangedEvent')
+const resourcesChangedLightEventType  = new MessageType('ResourcesChangedLightEvent')
+
+const nodeResourceChangeQueueName =  'node-resource-change'
+const nodeResourceChangeLightQueueName =  'node-resource-change-light'
+
+bus.receiveEndpoint(nodeResourceChangeQueueName,
+        cfg => {
+    cfg.handle<ResourcesChangedEvent>(resourcesChangedEventType,
+        async context => {
+        console.log('Received ResourcesChangedEvent: ' + JSON.stringify(context.message))
+    });
+});
+
+bus.receiveEndpoint(nodeResourceChangeLightQueueName,
+    cfg => {
+        cfg.handle<ResourcesChangedLightEvent>(resourcesChangedLightEventType,
+            async context => {
+                console.log('Received ResourcesChangedLightEvent: ' + JSON.stringify(context.message))
+            });
+    });
+
+// Add extra exchange and binding.
+// Alternatively, use 'Firely.Server.Contracts.Messages.V1:ResourcesChangedEvent' and 'Firely.Server.Contracts.Messages.V1:ResourcesChangedLightEvent'
+// as queue name when calling bus.receiveEndpoint.
+bus.on('connect', async() => {
+    console.log('Extra setup for RabbitMq...')
+    console.log('Ensure that exchanges used by Firely Server to publish events are present ...')
+    const connection = await amqplib.connect(`amqp://${busOption.host}`);
+    const channel = await connection.createChannel();
+    const resourcesChangedLightEventExchange = `${resourcesChangedLightEventType.ns}:${resourcesChangedLightEventType.name}`
+    await channel.assertExchange(resourcesChangedLightEventExchange, 'fanout', { durable: true, internal: false, autoDelete: false });
+    const resourcesChangedEventExchange = `${resourcesChangedEventType.ns}:${resourcesChangedEventType.name}`
+    await channel.assertExchange(resourcesChangedEventExchange, 'fanout', { durable: true, internal: false, autoDelete: false });
+    console.log('Bind the exchanges used by Firely Server to the exchange created by MassTransit in this client...')
+    await channel.bindExchange(nodeResourceChangeLightQueueName, resourcesChangedLightEventExchange, '')
+    await channel.bindExchange(nodeResourceChangeQueueName, resourcesChangedEventExchange, '')
+})
 
 let storePlanClient = bus.requestClient<ExecuteStorePlanCommand, ExecuteStorePlanResponse>({
     exchange: 'Firely.Server.Contracts.Messages.V1:ExecuteStorePlanCommand',
@@ -48,21 +94,6 @@ function printUsage(){
         console.log("\t\tu familyName patientId newPatientVersion currentPatientVersion");
         console.log("\tDelete Patient");
         console.log("\t\td patientId currentPatientVersion");
-}
-
-
-async function readLineAsync(): Promise<string> {
-    const rl = readline.createInterface({
-        input: process.stdin,
-        output: process.stdout,
-    });
-
-    return new Promise((resolve) => {
-        rl.question('', (line) => {
-            rl.close();
-            resolve(line);
-        });
-    });
 }
 
 
@@ -131,6 +162,20 @@ const processUserInput = async () => {
             }
         }
     }
+}
+
+async function readLineAsync(): Promise<string> {
+    const rl = readline.createInterface({
+        input: process.stdin,
+        output: process.stdout,
+    });
+
+    return new Promise((resolve) => {
+        rl.question('', (line) => {
+            rl.close();
+            resolve(line);
+        });
+    });
 }
 
 async function runRetrievePlan(retrievePlanItems: RetrievePlanItem[]): Promise<void> {
