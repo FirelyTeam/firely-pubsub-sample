@@ -1,4 +1,3 @@
-
 export interface ResourceReference {
     resourceType: string
     resourceId: string
@@ -21,7 +20,7 @@ export interface RetrievePlanResultItem {
     message: string
 }
 
-export interface  RetrievePlanResponse {
+export interface RetrievePlanResponse {
     Items: Array<RetrievePlanResultItem>
 }
 
@@ -62,13 +61,13 @@ export interface ExecuteStorePlanResponse {
 
 export interface ResourceChange {
     reference: ResourceReference
-    resource?:  string | null
-    changeType:  string
+    resource?: string | null
+    changeType: string
 }
 
 export interface ResourceChangeLight {
     reference: ResourceReference
-    changeType:  string
+    changeType: string
 }
 
 export interface ResourcesChangedEvent {
