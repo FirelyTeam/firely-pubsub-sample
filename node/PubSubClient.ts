@@ -11,11 +11,10 @@ import {HostSettings} from "masstransit-rabbitmq/dist/RabbitMqEndpointAddress";
 import * as amqplib from 'amqplib';
 
 
-export class PubSubClient
-{
+export class PubSubClient {
     private _storePlanClient: RequestClient<ExecuteStorePlanCommand, ExecuteStorePlanResponse>
     private _retrievePlanClient: RequestClient<RetrievePlanCommand, RetrievePlanResponse>
-    private _bus : Bus
+    private _bus: Bus
     private _resourcesChangedEventType = new MessageType('ResourcesChangedEvent')
     private _resourcesChangedLightEventType = new MessageType('ResourcesChangedLightEvent')
     private _nodeResourceChangeQueueName = 'node-resource-change'
@@ -71,8 +70,7 @@ export class PubSubClient
         })
     }
 
-    async stop() : Promise<void>
-    {
+    async stop(): Promise<void> {
         await this._bus.stop()
     }
 

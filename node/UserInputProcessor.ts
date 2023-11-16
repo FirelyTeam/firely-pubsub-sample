@@ -3,13 +3,13 @@ import {CommandProcessor} from "./CommandProcessor";
 import {RetrievePlanItem, StorePlanItem} from "./messagesV1";
 
 export class UserInputProcessor {
-    private _commandProcessor : CommandProcessor
+    private _commandProcessor: CommandProcessor
 
     constructor(commandProcessor: CommandProcessor) {
         this._commandProcessor = commandProcessor
     }
 
-    async processUserInput()  {
+    async processUserInput() {
         const storePlanItems: StorePlanItem[] = [];
         const retrievePlanItems: RetrievePlanItem[] = [];
 

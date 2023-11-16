@@ -9,7 +9,7 @@ export class CommandProcessor {
     private _itemId = 0
     private _pubSubClient
 
-    constructor(pubSubClient : PubSubClient) {
+    constructor(pubSubClient: PubSubClient) {
         this._pubSubClient = pubSubClient
     }
 
