@@ -7,7 +7,7 @@
       "build": "tsc",
       "start": "tsc && node dist/index.js"
   },
-  "author": "Firely n.v.",
+  "author": "Firely B.V.",
   "license": "",
   "dependencies": {
     "@types/amqplib": "^0.10.3",
