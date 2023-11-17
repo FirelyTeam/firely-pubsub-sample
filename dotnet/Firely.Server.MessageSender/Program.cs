@@ -72,8 +72,7 @@ public static class Program
             .Build();
 
         var service = host.Services.GetRequiredService<UserInputProcessor>();
-        _ = service.ProcessUserInput();
         
-        await host.RunAsync();
+        await T.Task.WhenAny(host.RunAsync(), service.ProcessUserInput());
     }   
 }

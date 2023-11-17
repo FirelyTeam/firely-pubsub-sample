@@ -13,12 +13,23 @@ dotnet build
 First you need to start the following dependencies to be able to run the client
 
 ## RabbitMQ
+In the sample, [RabbitMq](https://www.rabbitmq.com/) is used as the message bus for the PubSub feature.
 
-Create RabbitMQ with following command
+So, in order to be able run the sample, you need to instantiate a RabbitMQ instance with following command
 ```
 docker run -d --name firely-broker -p 15672:15672 -p 5672:5672 rabbitmq:3-management
 ```
 when browsing to http://localhost:15672 - management console will be opened. Default credentials are `guest/guest`
+
+## Jaeger
+[Jaeger](https://www.jaegertracing.io/) can be use to observed the OpenTelemetry traces from the sample. 
+
+In order to enable that, you need to instantiate a Jaeger instance with the following command:
+```
+docker run -d --name jaeger -p 16686:16686 -p 4317:4317 jaegertracing/all-in-one:latest
+```
+The traces can then be viewed when browsing to http://localhost:16686.
+
 
 ## Firely Server
 Start Firely server and make sure to enable the PubSub in the settings file as described in the 
