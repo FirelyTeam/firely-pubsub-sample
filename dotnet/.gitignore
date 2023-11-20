@@ -1,0 +1,45 @@
+# User-specific files
+*.suo
+*.user
+*.user.*
+appsettings.instance.json
+logsettings.instance.json
+audit.logsettings.instance.json
+.DS_STORE
+.idea/
+
+# Build results
+[Dd]ebug/
+[Rr]elease/
+PublishProfiles/
+obj/
+*-report*.*
+
+# Visual Studio 2015 cache/options directory
+.vs/
+
+# Visual Studio Test Files
+**/.runsettings
+
+# DNX
+project.lock.json
+project.assets.json
+artifacts/
+
+# Documentation
+docs/*.~*x
+docs/*.~*m
+
+#Nuget
+*.nuget.g.props
+*.nuget.g.targets
+*-*.nuspec
+
+#SQL
+*.ldf
+/packages
+
+#Visual Studio Code files
+.vscode/
+*.log
+**/taskfiles
