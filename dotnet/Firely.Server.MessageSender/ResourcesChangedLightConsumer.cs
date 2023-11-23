@@ -1,3 +1,4 @@
+using System.Text.Json;
 using System.Threading.Tasks;
 using Firely.Server.Contracts.Messages.V1;
 using MassTransit;
@@ -17,7 +18,7 @@ internal class ResourcesChangedLightConsumer :  IConsumer<ResourcesChangedLightE
     {
         if (context.Message is { } changes)
         {
-            _logger.LogInformation($"Received changed light event: {changes}.");
+            _logger.LogInformation($"Received {nameof(ResourcesChangedLightEvent)}: '{JsonSerializer.Serialize(changes)}'.");
         }
 
         return Task.CompletedTask;
