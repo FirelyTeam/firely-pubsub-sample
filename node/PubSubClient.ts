@@ -21,6 +21,12 @@ export class PubSubClient {
 
         MessageType.setDefaultNamespace(this._firelyNamespace);
 
+        const executeStorePlanCommandType = new MessageType('ExecuteStorePlanCommand')
+        const executeStorePlanResponseType = new MessageType('ExecuteStorePlanResponse')
+        const executeStorePlanExchange = `${executeStorePlanCommandType.ns}:${executeStorePlanCommandType.name}`
+        const retrievePlanCommandType = new MessageType('RetrievePlanCommand')
+        const retrievePlanResponseType = new MessageType('RetrievePlanResponse')
+        const retrievePlanExchange = `${retrievePlanCommandType.ns}:${retrievePlanCommandType.name}`
         const resourcesChangedEventType = new MessageType('ResourcesChangedEvent')
         const resourcesChangedLightEventType = new MessageType('ResourcesChangedLightEvent')
         const resourcesChangedLightEventExchange = `${resourcesChangedLightEventType.ns}:${resourcesChangedLightEventType.name}`
@@ -29,17 +35,22 @@ export class PubSubClient {
         const nodeResourceChangeQueueName = `${resourcesChangedEventExchange}_node`
 
         this._bus = masstransit(busOption)
+
+        console.log(`Setting up a client to send ${executeStorePlanCommandType.toString()} and retrieve ${executeStorePlanResponseType.toString()}` )
         this._storePlanClient = this._bus.requestClient<ExecuteStorePlanCommand, ExecuteStorePlanResponse>({
-            exchange: 'Firely.Server.Contracts.Messages.V1:ExecuteStorePlanCommand',
-            requestType: new MessageType('ExecuteStorePlanCommand'),
-            responseType: new MessageType('ExecuteStorePlanResponse'),
+            exchange: executeStorePlanExchange,
+            requestType: executeStorePlanCommandType,
+            responseType: executeStorePlanResponseType,
         });
 
+        console.log(`Setting up a client to send ${retrievePlanCommandType.toString()} and retrieve ${retrievePlanResponseType.toString()}` )
         this._retrievePlanClient = this._bus.requestClient<RetrievePlanCommand, RetrievePlanResponse>({
-            exchange: 'Firely.Server.Contracts.Messages.V1:RetrievePlanCommand',
-            requestType: new MessageType('RetrievePlanCommand'),
-            responseType: new MessageType('RetrievePlanResponse'),
+            exchange: retrievePlanExchange,
+            requestType: retrievePlanCommandType,
+            responseType: retrievePlanResponseType,
         });
+
+        console.log(`Setting up a queue ${nodeResourceChangeQueueName} and an exchange to get ${resourcesChangedEventType.toString()} events` )
         this._bus.receiveEndpoint(nodeResourceChangeQueueName,
             cfg => {
                 cfg.handle<ResourcesChangedEvent>(resourcesChangedEventType,
@@ -48,6 +59,7 @@ export class PubSubClient {
                     });
             });
 
+        console.log(`Setting up a queue ${nodeResourceChangeLightQueueName} and an exchange to get ${resourcesChangedLightEventType.toString()} events` )
         this._bus.receiveEndpoint(nodeResourceChangeLightQueueName,
             cfg => {
                 cfg.handle<ResourcesChangedLightEvent>(resourcesChangedLightEventType,
