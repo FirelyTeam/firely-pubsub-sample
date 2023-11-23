@@ -15,15 +15,18 @@ export class PubSubClient {
     private _storePlanClient: RequestClient<ExecuteStorePlanCommand, ExecuteStorePlanResponse>
     private _retrievePlanClient: RequestClient<RetrievePlanCommand, RetrievePlanResponse>
     private _bus: Bus
-    private _resourcesChangedEventType = new MessageType('ResourcesChangedEvent')
-    private _resourcesChangedLightEventType = new MessageType('ResourcesChangedLightEvent')
-    private _nodeResourceChangeQueueName = 'node-resource-change'
-    private _nodeResourceChangeLightQueueName = 'node-resource-change-light'
-    private _firelyNamespace = 'Firely.Server.Contracts.Messages.V1'
+    readonly _firelyNamespace = 'Firely.Server.Contracts.Messages.V1'
 
     constructor(busOption: HostSettings) {
 
         MessageType.setDefaultNamespace(this._firelyNamespace);
+
+        const resourcesChangedEventType = new MessageType('ResourcesChangedEvent')
+        const resourcesChangedLightEventType = new MessageType('ResourcesChangedLightEvent')
+        const resourcesChangedLightEventExchange = `${resourcesChangedLightEventType.ns}:${resourcesChangedLightEventType.name}`
+        const resourcesChangedEventExchange = `${resourcesChangedEventType.ns}:${resourcesChangedEventType.name}`
+        const nodeResourceChangeLightQueueName = `${resourcesChangedLightEventExchange}_node`
+        const nodeResourceChangeQueueName = `${resourcesChangedEventExchange}_node`
 
         this._bus = masstransit(busOption)
         this._storePlanClient = this._bus.requestClient<ExecuteStorePlanCommand, ExecuteStorePlanResponse>({
@@ -37,17 +40,17 @@ export class PubSubClient {
             requestType: new MessageType('RetrievePlanCommand'),
             responseType: new MessageType('RetrievePlanResponse'),
         });
-        this._bus.receiveEndpoint(this._nodeResourceChangeQueueName,
+        this._bus.receiveEndpoint(nodeResourceChangeQueueName,
             cfg => {
-                cfg.handle<ResourcesChangedEvent>(this._resourcesChangedEventType,
+                cfg.handle<ResourcesChangedEvent>(resourcesChangedEventType,
                     async context => {
                         console.log('Received ResourcesChangedEvent: ' + JSON.stringify(context.message))
                     });
             });
 
-        this._bus.receiveEndpoint(this._nodeResourceChangeLightQueueName,
+        this._bus.receiveEndpoint(nodeResourceChangeLightQueueName,
             cfg => {
-                cfg.handle<ResourcesChangedLightEvent>(this._resourcesChangedLightEventType,
+                cfg.handle<ResourcesChangedLightEvent>(resourcesChangedLightEventType,
                     async context => {
                         console.log('Received ResourcesChangedLightEvent: ' + JSON.stringify(context.message))
                     });
@@ -57,16 +60,22 @@ export class PubSubClient {
         // as queue name when calling bus.receiveEndpoint.
         this._bus.on('connect', async () => {
             console.log('Extra setup for RabbitMq...')
-            console.log('Ensure that exchanges used by Firely Server to publish events are present ...')
             const connection = await amqplib.connect(`amqp://${busOption.host}`);
             const channel = await connection.createChannel();
-            const resourcesChangedLightEventExchange = `${this._resourcesChangedLightEventType.ns}:${this._resourcesChangedLightEventType.name}`
+            // Following lines ensure that the exchanges used for the notification exist so that we can bind queues to them.
+            // At the moment, Firely Server creates those only once a notification has to be sent, meaning that at the start,
+            // they might not be present. This will change in future release.
+            console.log('Ensure that exchanges used by Firely Server to publish events are present (SHOULD NOT BE REQUIRED IN THE FUTURE)...')
+            console.log(`Creating RabbitMq fanout exchange '${resourcesChangedLightEventExchange}' if it does not exist yet`)
             await channel.assertExchange(resourcesChangedLightEventExchange, 'fanout', {durable: true, internal: false, autoDelete: false});
-            const resourcesChangedEventExchange = `${this._resourcesChangedEventType.ns}:${this._resourcesChangedEventType.name}`
+            console.log(`Creating RabbitMq fanout exchange '${resourcesChangedEventExchange}' if it does not exist yet`)
             await channel.assertExchange(resourcesChangedEventExchange, 'fanout', {durable: true, internal: false, autoDelete: false});
-            console.log('Bind the exchanges used by Firely Server to the exchange created by MassTransit in this client...')
-            await channel.bindExchange(this._nodeResourceChangeLightQueueName, resourcesChangedLightEventExchange, '')
-            await channel.bindExchange(this._nodeResourceChangeQueueName, resourcesChangedEventExchange, '')
+
+            console.log('Binding queues to the exchanges used by Firely Server to publish events are present...')
+            console.log(`Binding the exchange '${resourcesChangedLightEventExchange}' to the exchange '${nodeResourceChangeLightQueueName}' created by MassTransit in this client:...`)
+            await channel.bindExchange(nodeResourceChangeLightQueueName, resourcesChangedLightEventExchange, '')
+            console.log(`Binding the exchange '${resourcesChangedEventExchange}' to the exchange '${nodeResourceChangeQueueName}' created by MassTransit in this client:...`)
+            await channel.bindExchange(nodeResourceChangeQueueName, resourcesChangedEventExchange, '')
         })
     }
 
