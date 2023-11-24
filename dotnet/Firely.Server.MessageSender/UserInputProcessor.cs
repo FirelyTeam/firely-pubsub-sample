@@ -95,9 +95,9 @@ public class UserInputProcessor
         try
         {
             var command = new RetrievePlanCommand(items);
-            Console.WriteLine($"Sending retrieve plan command: '{JsonSerializer.Serialize(command)}'");
+            Console.WriteLine($"Sending {nameof(RetrievePlanCommand)}: '{JsonSerializer.Serialize(command)}'");
             var response = await _pubSubClient.RetrievePlan(command);
-            Console.WriteLine($"Response from retrieve plan command: '{JsonSerializer.Serialize(response)}'");
+            Console.WriteLine($"Response from {nameof(RetrievePlanCommand)}: '{JsonSerializer.Serialize(response)}'");
         }
         catch (Exception e)
         {
@@ -110,9 +110,9 @@ public class UserInputProcessor
         try
         {
             var command = new ExecuteStorePlanCommand(storePlanItems);
-            Console.WriteLine($"Sending execute store plan command: '{JsonSerializer.Serialize(command)}'");
+            Console.WriteLine($"Sending {nameof(ExecuteStorePlanCommand)}: '{JsonSerializer.Serialize(command)}'");
             var response = await _pubSubClient.ExecuteStorePlan(command);
-            Console.WriteLine($"Response from execute store plan command: '{JsonSerializer.Serialize(response)}'");
+            Console.WriteLine($"Response from {nameof(ExecuteStorePlanCommand)}: '{JsonSerializer.Serialize(response)}'");
         }
         catch (Exception e)
         {

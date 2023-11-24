@@ -98,10 +98,10 @@ export class PubSubClient {
     async runRetrievePlan(retrievePlanItems: RetrievePlanItem[]): Promise<void> {
         try {
             const retrievePlanCommand = this.createRetrievePlanCommand(retrievePlanItems)
-            console.log('Running plan ' + JSON.stringify(retrievePlanCommand));
+            console.log('Sending  RetrievePlanCommand: ' + JSON.stringify(retrievePlanCommand));
             const responseContext = await this._retrievePlanClient.getResponse(retrievePlanCommand);
 
-            console.log(JSON.stringify(responseContext.message));
+            console.log('Response from RetrievePlanCommand: ' + JSON.stringify(responseContext.message));
         } catch (e) {
             console.log(e);
         }
@@ -110,10 +110,10 @@ export class PubSubClient {
     async runExecuteStorePlan(storePlanItems: StorePlanItem[]): Promise<void> {
         try {
             const executeStorePlan = this.createExecuteStorePlanCommand(storePlanItems)
-            console.log('Running plan ' + JSON.stringify(executeStorePlan));
+            console.log('Sending ExecuteStorePlanCommand: ' + JSON.stringify(executeStorePlan));
             const responseContext = await this._storePlanClient.getResponse(executeStorePlan);
 
-            console.log(JSON.stringify(responseContext.message));
+            console.log('Response from ExecuteStorePlanCommand: ' +JSON.stringify(responseContext.message));
         } catch (e) {
             console.log(e);
         }
