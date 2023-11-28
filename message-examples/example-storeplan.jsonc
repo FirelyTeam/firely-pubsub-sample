@@ -1,0 +1,46 @@
+{
+    "instructions": [
+        {
+            "itemId": "0",
+            "operation": "create", // "create" | "update" | "upsert" | "delete"
+            "resourceType": "Patient",
+            "resourceId": "example-patient",
+            "currentVersion": null,
+            "resource": {
+                "resourceType": "Patient",
+                "id": "example-patient",
+                "meta": {
+                    "versionId": "v1",
+                    "lastUpdated": "2023-06-09T08:33:21+02:00"
+                },
+                "name": [
+                    {
+                        "given": [ "Sarah" ],
+                        "family": "Smith"
+                    }
+                ]
+            }
+        },
+        {
+            "itemId": "1",
+            "operation": "update",
+            "resourceType": "Patient",
+            "resourceId": "existing-patient",
+            "currentVersion": "v1",
+            "resource": {
+                "resourceType": "Patient",
+                "id": "existing-patient",
+                "meta": {
+                    "versionId": "v2",
+                    "lastUpdated": "2023-06-09T08:33:27+02:00"
+                },
+                "name": [
+                    {
+                        "given": [ "Fred" ],
+                        "family": "Flintstone"
+                    }
+                ]
+            }
+        }
+    ]
+}

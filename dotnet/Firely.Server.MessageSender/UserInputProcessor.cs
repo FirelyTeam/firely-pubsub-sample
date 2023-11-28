@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Firely.Server.Contracts.MassTransit;
 using Firely.Server.Contracts.Messages.V1;
@@ -94,9 +95,9 @@ public class UserInputProcessor
         try
         {
             var command = new RetrievePlanCommand(items);
-            Console.WriteLine("Running retrieve plan " + command);
+            Console.WriteLine($"Sending {nameof(RetrievePlanCommand)}: '{JsonSerializer.Serialize(command)}'");
             var response = await _pubSubClient.RetrievePlan(command);
-            Console.WriteLine(response.ToString());
+            Console.WriteLine($"Response from {nameof(RetrievePlanCommand)}: '{JsonSerializer.Serialize(response)}'");
         }
         catch (Exception e)
         {
@@ -109,10 +110,9 @@ public class UserInputProcessor
         try
         {
             var command = new ExecuteStorePlanCommand(storePlanItems);
-            Console.WriteLine("Running plan " + command);
+            Console.WriteLine($"Sending {nameof(ExecuteStorePlanCommand)}: '{JsonSerializer.Serialize(command)}'");
             var response = await _pubSubClient.ExecuteStorePlan(command);
-            
-            Console.WriteLine(response.ToString());
+            Console.WriteLine($"Response from {nameof(ExecuteStorePlanCommand)}: '{JsonSerializer.Serialize(response)}'");
         }
         catch (Exception e)
         {

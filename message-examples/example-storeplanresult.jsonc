@@ -1,0 +1,13 @@
+{
+    "errors": [
+        {
+            "itemId": "1",
+            "status": {
+                "code": "BadRequest", // "BadRequest" | "Error" | "InternalServerError" 
+                "details": "BadRequestMissingItemId"
+            },
+            "message": "Concurrent change detected"
+        }
+    ]
+
+}

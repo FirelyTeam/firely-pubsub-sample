@@ -1,0 +1,1554 @@
+{
+	"info": {
+		"_postman_id": "393be13a-75b3-42cd-88bc-4a6cbfefa2ce",
+		"name": "PubSub Tests",
+		"description": "RabbitMQ Management HTTP API\n\n[https://rawcdn.githack.com/rabbitmq/rabbitmq-server/v3.12.7/deps/rabbitmq_management/priv/www/api/index.html](https://rawcdn.githack.com/rabbitmq/rabbitmq-server/v3.12.7/deps/rabbitmq_management/priv/www/api/index.html)\n\nIf vhost name is `/`, use `% 2 F` to encode it\n\n[https://stackoverflow.com/questions/33119611/how-to-make-rabbitmq-api-calls-with-vhost](https://stackoverflow.com/questions/33119611/how-to-make-rabbitmq-api-calls-with-vhost)",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "15273726"
+	},
+	"item": [
+		{
+			"name": "Setup",
+			"item": [
+				{
+					"name": "StorePlanResponse",
+					"item": [
+						{
+							"name": "Upsert exchange",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(`Exchange '${pm.collectionVariables.get('StorePlanResponse')}' is created`, () => {\r",
+											"    pm.expect(pm.response.code).to.be.oneOf([201, 204]);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"type\": \"fanout\",\r\n    \"auto_delete\": false,\r\n    \"durable\": true,\r\n    \"internal\": false,\r\n    \"arguments\": {}\r\n}"
+								},
+								"url": {
+									"raw": "http://{{RABBITMQ_ENDPOINT}}/api/exchanges/{{vhost}}/{{StorePlanResponse}}",
+									"protocol": "http",
+									"host": [
+										"{{RABBITMQ_ENDPOINT}}"
+									],
+									"path": [
+										"api",
+										"exchanges",
+										"{{vhost}}",
+										"{{StorePlanResponse}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Upsert queue",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(`Queue '${pm.collectionVariables.get('StorePlanResponse')}' is created`, () => {\r",
+											"    pm.expect(pm.response.code).to.be.oneOf([201, 204]);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"auto_delete\": false,\r\n    \"durable\": true,\r\n    \"arguments\": {}\r\n}"
+								},
+								"url": {
+									"raw": "http://{{RABBITMQ_ENDPOINT}}/api/queues/{{vhost}}/{{StorePlanResponse}}",
+									"protocol": "http",
+									"host": [
+										"{{RABBITMQ_ENDPOINT}}"
+									],
+									"path": [
+										"api",
+										"queues",
+										"{{vhost}}",
+										"{{StorePlanResponse}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Bind exchange to queue",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(`Binding is created between exchange '${pm.collectionVariables.get('StorePlanResponse')}' and queue '${pm.collectionVariables.get('StorePlanResponse')}'`, () => {\r",
+											"    pm.expect(pm.response.code).to.equal(201);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{}"
+								},
+								"url": {
+									"raw": "http://{{RABBITMQ_ENDPOINT}}/api/bindings/{{vhost}}/e/{{StorePlanResponse}}/q/{{StorePlanResponse}}",
+									"protocol": "http",
+									"host": [
+										"{{RABBITMQ_ENDPOINT}}"
+									],
+									"path": [
+										"api",
+										"bindings",
+										"{{vhost}}",
+										"e",
+										"{{StorePlanResponse}}",
+										"q",
+										"{{StorePlanResponse}}"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "RetrievePlanResponse",
+					"item": [
+						{
+							"name": "Upsert exchange",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(`Exchange '${pm.collectionVariables.get('RetrievePlanResponse')}' is created`, () => {\r",
+											"    pm.expect(pm.response.code).to.be.oneOf([201, 204]);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"type\": \"fanout\",\r\n    \"auto_delete\": false,\r\n    \"durable\": true,\r\n    \"internal\": false,\r\n    \"arguments\": {}\r\n}"
+								},
+								"url": {
+									"raw": "http://{{RABBITMQ_ENDPOINT}}/api/exchanges/{{vhost}}/{{RetrievePlanResponse}}",
+									"protocol": "http",
+									"host": [
+										"{{RABBITMQ_ENDPOINT}}"
+									],
+									"path": [
+										"api",
+										"exchanges",
+										"{{vhost}}",
+										"{{RetrievePlanResponse}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Upsert queue",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(`Queue '${pm.collectionVariables.get('RetrievePlanResponse')}' is created`, () => {\r",
+											"    pm.expect(pm.response.code).to.be.oneOf([201, 204]);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"auto_delete\": false,\r\n    \"durable\": true,\r\n    \"arguments\": {}\r\n}"
+								},
+								"url": {
+									"raw": "http://{{RABBITMQ_ENDPOINT}}/api/queues/{{vhost}}/{{RetrievePlanResponse}}",
+									"protocol": "http",
+									"host": [
+										"{{RABBITMQ_ENDPOINT}}"
+									],
+									"path": [
+										"api",
+										"queues",
+										"{{vhost}}",
+										"{{RetrievePlanResponse}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Bind exchange to queue",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(`Binding is created between exchange '${pm.collectionVariables.get('RetrievePlanResponse')}' and queue '${pm.collectionVariables.get('RetrievePlanResponse')}'`, () => {\r",
+											"    pm.expect(pm.response.code).to.equal(201);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{}"
+								},
+								"url": {
+									"raw": "http://{{RABBITMQ_ENDPOINT}}/api/bindings/{{vhost}}/e/{{RetrievePlanResponse}}/q/{{RetrievePlanResponse}}",
+									"protocol": "http",
+									"host": [
+										"{{RABBITMQ_ENDPOINT}}"
+									],
+									"path": [
+										"api",
+										"bindings",
+										"{{vhost}}",
+										"e",
+										"{{RetrievePlanResponse}}",
+										"q",
+										"{{RetrievePlanResponse}}"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "ResourcesChangedEvent",
+					"item": [
+						{
+							"name": "Upsert queue",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(`Queue '${pm.collectionVariables.get('ResourcesChangedEventQueue')}' is created`, () => {\r",
+											"    pm.expect(pm.response.code).to.be.oneOf([201, 204]);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"auto_delete\": false,\r\n    \"durable\": true,\r\n    \"arguments\": {}\r\n}"
+								},
+								"url": {
+									"raw": "http://{{RABBITMQ_ENDPOINT}}/api/queues/{{vhost}}/{{ResourcesChangedEventQueue}}",
+									"protocol": "http",
+									"host": [
+										"{{RABBITMQ_ENDPOINT}}"
+									],
+									"path": [
+										"api",
+										"queues",
+										"{{vhost}}",
+										"{{ResourcesChangedEventQueue}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Bind exchange to queue",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(`Binding is created between exchange '${pm.collectionVariables.get('ResourcesChangedEvent')}' and queue '${pm.collectionVariables.get('ResourcesChangedEventQueue')}'`, () => {\r",
+											"    pm.expect(pm.response.code).to.equal(201);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{}"
+								},
+								"url": {
+									"raw": "http://{{RABBITMQ_ENDPOINT}}/api/bindings/{{vhost}}/e/{{ResourcesChangedEvent}}/q/{{ResourcesChangedEventQueue}}",
+									"protocol": "http",
+									"host": [
+										"{{RABBITMQ_ENDPOINT}}"
+									],
+									"path": [
+										"api",
+										"bindings",
+										"{{vhost}}",
+										"e",
+										"{{ResourcesChangedEvent}}",
+										"q",
+										"{{ResourcesChangedEventQueue}}"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "ResourcesChangedLightEvent",
+					"item": [
+						{
+							"name": "Upsert queue",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(`Queue '${pm.collectionVariables.get('ResourcesChangedLightEvent')}' is created`, () => {\r",
+											"    pm.expect(pm.response.code).to.be.oneOf([201, 204]);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"auto_delete\": false,\r\n    \"durable\": true,\r\n    \"arguments\": {}\r\n}"
+								},
+								"url": {
+									"raw": "http://{{RABBITMQ_ENDPOINT}}/api/queues/{{vhost}}/{{ResourcesChangedLightEventQueue}}",
+									"protocol": "http",
+									"host": [
+										"{{RABBITMQ_ENDPOINT}}"
+									],
+									"path": [
+										"api",
+										"queues",
+										"{{vhost}}",
+										"{{ResourcesChangedLightEventQueue}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Bind exchange to queue",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(`Binding is created between exchange '${pm.collectionVariables.get('ResourcesChangedLightEvent')}' and queue '${pm.collectionVariables.get('ResourcesChangedLightEventQueue')}'`, () => {\r",
+											"    pm.expect(pm.response.code).to.equal(201);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{}"
+								},
+								"url": {
+									"raw": "http://{{RABBITMQ_ENDPOINT}}/api/bindings/{{vhost}}/e/{{ResourcesChangedLightEvent}}/q/{{ResourcesChangedLightEventQueue}}",
+									"protocol": "http",
+									"host": [
+										"{{RABBITMQ_ENDPOINT}}"
+									],
+									"path": [
+										"api",
+										"bindings",
+										"{{vhost}}",
+										"e",
+										"{{ResourcesChangedLightEvent}}",
+										"q",
+										"{{ResourcesChangedLightEventQueue}}"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Get vhost",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://{{RABBITMQ_ENDPOINT}}/api/vhosts",
+							"protocol": "http",
+							"host": [
+								"{{RABBITMQ_ENDPOINT}}"
+							],
+							"path": [
+								"api",
+								"vhosts"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Get vhost",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "http://{{RABBITMQ_ENDPOINT}}/api/vhosts",
+									"protocol": "http",
+									"host": [
+										"{{RABBITMQ_ENDPOINT}}"
+									],
+									"path": [
+										"api",
+										"vhosts"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "cache-control",
+									"value": "no-cache"
+								},
+								{
+									"key": "content-encoding",
+									"value": "gzip"
+								},
+								{
+									"key": "content-length",
+									"value": "208"
+								},
+								{
+									"key": "content-security-policy",
+									"value": "script-src 'self' 'unsafe-eval' 'unsafe-inline'; object-src 'self'"
+								},
+								{
+									"key": "content-type",
+									"value": "application/json"
+								},
+								{
+									"key": "date",
+									"value": "Wed, 01 Nov 2023 18:55:22 GMT"
+								},
+								{
+									"key": "server",
+									"value": "Cowboy"
+								},
+								{
+									"key": "vary",
+									"value": "accept, accept-encoding, origin"
+								}
+							],
+							"cookie": [],
+							"body": "[\n    {\n        \"cluster_state\": {\n            \"rabbit@MSI\": \"running\"\n        },\n        \"default_queue_type\": \"undefined\",\n        \"description\": \"Default virtual host\",\n        \"messages\": 184,\n        \"messages_details\": {\n            \"rate\": 0\n        },\n        \"messages_ready\": 184,\n        \"messages_ready_details\": {\n            \"rate\": 0\n        },\n        \"messages_unacknowledged\": 0,\n        \"messages_unacknowledged_details\": {\n            \"rate\": 0\n        },\n        \"metadata\": {\n            \"description\": \"Default virtual host\",\n            \"tags\": []\n        },\n        \"name\": \"/\",\n        \"tags\": [],\n        \"tracing\": false\n    }\n]"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Tests",
+			"item": [
+				{
+					"name": "create without response",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"var patient = utils.buildPatient(\"Bob\", \"patient-bob\", \"v1\");\r",
+									"\r",
+									"var instructions = [\r",
+									"    {\r",
+									"        \"itemId\": utils.newId(),\r",
+									"        \"resource\": JSON.stringify(patient),\r",
+									"        \"resourceType\": patient.resourceType,\r",
+									"        \"resourceId\": patient.id,\r",
+									"        \"currentVersion\": patient.meta.versionId,\r",
+									"        \"operation\": \"create\"\r",
+									"    }\r",
+									"];\r",
+									"\r",
+									"var body = utils.buildTestMessage(\r",
+									"    instructions,\r",
+									"    pm.collectionVariables.get(\"StorePlanCommand\"),\r",
+									"    \"\",\r",
+									"    \"STU3\"\r",
+									");\r",
+									"\r",
+									"pm.collectionVariables.set(\"RequestBody\", body);\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"\r",
+									"pm.test(\"Message is sent successfully\", () => {\r",
+									"    pm.expect(pm.response.code).to.equal(200);\r",
+									"});\r",
+									"\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {
+							"accept": true,
+							"content-type": true
+						}
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{{RequestBody}}"
+						},
+						"url": {
+							"raw": "http://{{RABBITMQ_ENDPOINT}}/api/exchanges/{{vhost}}/{{StorePlanCommand}}/publish",
+							"protocol": "http",
+							"host": [
+								"{{RABBITMQ_ENDPOINT}}"
+							],
+							"path": [
+								"api",
+								"exchanges",
+								"{{vhost}}",
+								"{{StorePlanCommand}}",
+								"publish"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "create with response",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"var patient = utils.buildPatient(\"Bob\", \"patient-bob\", \"v1\");\r",
+									"\r",
+									"var instructions = [\r",
+									"    {\r",
+									"        \"itemId\": utils.newId(),\r",
+									"        \"resource\": JSON.stringify(patient),\r",
+									"        \"resourceType\": patient.resourceType,\r",
+									"        \"resourceId\": patient.id,\r",
+									"        \"currentVersion\": patient.meta.versionId,\r",
+									"        \"operation\": \"create\"\r",
+									"    }\r",
+									"];\r",
+									"\r",
+									"var body = utils.buildTestMessage(\r",
+									"    instructions,\r",
+									"    pm.collectionVariables.get(\"StorePlanCommand\"),\r",
+									"    pm.collectionVariables.get(\"StorePlanResponse\"),\r",
+									"    \"STU3\"\r",
+									");\r",
+									"\r",
+									"pm.collectionVariables.set(\"RequestBody\", body);\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"\r",
+									"pm.test(\"Message is sent successfully\", () => {\r",
+									"    pm.expect(pm.response.code).to.equal(200);\r",
+									"});\r",
+									"\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {
+							"accept": true,
+							"content-type": true
+						}
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{{RequestBody}}"
+						},
+						"url": {
+							"raw": "http://{{RABBITMQ_ENDPOINT}}/api/exchanges/{{vhost}}/{{StorePlanCommand}}/publish",
+							"protocol": "http",
+							"host": [
+								"{{RABBITMQ_ENDPOINT}}"
+							],
+							"path": [
+								"api",
+								"exchanges",
+								"{{vhost}}",
+								"{{StorePlanCommand}}",
+								"publish"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get response of creation",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"\r",
+									"pm.test(\"Get message successfully\", () => {\r",
+									"    pm.expect(pm.response.code).to.equal(200);\r",
+									"\r",
+									"    var rabbitmqMessages = pm.response.json();\r",
+									"    pm.expect(rabbitmqMessages.length).to.equal(1);\r",
+									"\r",
+									"    var payload = JSON.parse(rabbitmqMessages[0].payload);\r",
+									"    console.log(payload);\r",
+									"});\r",
+									"\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {
+							"accept": true,
+							"content-type": true
+						}
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"count\": 1,\r\n    \"ackmode\": \"ack_requeue_false\",\r\n    \"encoding\": \"auto\"\r\n}"
+						},
+						"url": {
+							"raw": "http://{{RABBITMQ_ENDPOINT}}/api/queues/{{vhost}}/{{StorePlanResponse}}/get",
+							"protocol": "http",
+							"host": [
+								"{{RABBITMQ_ENDPOINT}}"
+							],
+							"path": [
+								"api",
+								"queues",
+								"{{vhost}}",
+								"{{StorePlanResponse}}",
+								"get"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete with response",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"var instructions = [\r",
+									"    {\r",
+									"        \"itemId\": utils.newId(),\r",
+									"        \"resourceType\": \"Patient\",\r",
+									"        \"resourceId\": \"patient-bob\",\r",
+									"        \"currentVersion\": \"v1\",\r",
+									"        \"operation\": \"delete\"\r",
+									"    }\r",
+									"];\r",
+									"\r",
+									"var body = utils.buildTestMessage(\r",
+									"    instructions,\r",
+									"    pm.collectionVariables.get(\"StorePlanCommand\"),\r",
+									"    pm.collectionVariables.get(\"StorePlanResponse\"),\r",
+									"    \"STU3\"\r",
+									");\r",
+									"\r",
+									"pm.collectionVariables.set(\"RequestBody\", body);\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"\r",
+									"pm.test(\"Message is sent successfully\", () => {\r",
+									"    pm.expect(pm.response.code).to.equal(200);\r",
+									"});\r",
+									"\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {
+							"accept": true,
+							"content-type": true
+						}
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{{RequestBody}}"
+						},
+						"url": {
+							"raw": "http://{{RABBITMQ_ENDPOINT}}/api/exchanges/{{vhost}}/{{StorePlanCommand}}/publish",
+							"protocol": "http",
+							"host": [
+								"{{RABBITMQ_ENDPOINT}}"
+							],
+							"path": [
+								"api",
+								"exchanges",
+								"{{vhost}}",
+								"{{StorePlanCommand}}",
+								"publish"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get response of deletion",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"\r",
+									"pm.test(\"Get message successfully\", () => {\r",
+									"    pm.expect(pm.response.code).to.equal(200);\r",
+									"\r",
+									"    var rabbitmqMessages = pm.response.json();\r",
+									"    pm.expect(rabbitmqMessages.length).to.equal(1);\r",
+									"\r",
+									"    var payload = JSON.parse(rabbitmqMessages[0].payload);\r",
+									"    console.log(payload);\r",
+									"});\r",
+									"\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {
+							"accept": true,
+							"content-type": true
+						}
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"count\": 1,\r\n    \"ackmode\": \"ack_requeue_false\",\r\n    \"encoding\": \"auto\"\r\n}"
+						},
+						"url": {
+							"raw": "http://{{RABBITMQ_ENDPOINT}}/api/queues/{{vhost}}/{{StorePlanResponse}}/get",
+							"protocol": "http",
+							"host": [
+								"{{RABBITMQ_ENDPOINT}}"
+							],
+							"path": [
+								"api",
+								"queues",
+								"{{vhost}}",
+								"{{StorePlanResponse}}",
+								"get"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "retrieve with response",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"var patient = utils.buildPatient(\"Bob\", \"patient-bob\", \"v1\");\r",
+									"\r",
+									"var instructions = [\r",
+									"    {\r",
+									"        \"itemId\": utils.newId(),\r",
+									"        \"reference\": {\r",
+									"            \"resourceType\": \"Patient\",\r",
+									"            \"resourceId\": \"patient-bob\",\r",
+									"            \"version\": \"v1\"\r",
+									"        }\r",
+									"    }\r",
+									"];\r",
+									"\r",
+									"var body = utils.buildTestMessage(\r",
+									"    instructions,\r",
+									"    pm.collectionVariables.get(\"RetrievePlanCommand\"),\r",
+									"    pm.collectionVariables.get(\"RetrievePlanResponse\"),\r",
+									"    \"STU3\"\r",
+									");\r",
+									"\r",
+									"pm.collectionVariables.set(\"RequestBody\", body);\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"\r",
+									"pm.test(\"Message is sent successfully\", () => {\r",
+									"    pm.expect(pm.response.code).to.equal(200);\r",
+									"});\r",
+									"\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {
+							"accept": true,
+							"content-type": true
+						}
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{{RequestBody}}"
+						},
+						"url": {
+							"raw": "http://{{RABBITMQ_ENDPOINT}}/api/exchanges/{{vhost}}/{{RetrievePlanCommand}}/publish",
+							"protocol": "http",
+							"host": [
+								"{{RABBITMQ_ENDPOINT}}"
+							],
+							"path": [
+								"api",
+								"exchanges",
+								"{{vhost}}",
+								"{{RetrievePlanCommand}}",
+								"publish"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get response of retrieval",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"\r",
+									"pm.test(\"Get message successfully\", () => {\r",
+									"    pm.expect(pm.response.code).to.equal(200);\r",
+									"\r",
+									"    var rabbitmqMessages = pm.response.json();\r",
+									"    pm.expect(rabbitmqMessages.length).to.equal(1);\r",
+									"\r",
+									"    var payload = JSON.parse(rabbitmqMessages[0].payload);\r",
+									"    console.log(payload);\r",
+									"});\r",
+									"\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {
+							"accept": true,
+							"content-type": true
+						}
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"count\": 1,\r\n    \"ackmode\": \"ack_requeue_false\",\r\n    \"encoding\": \"auto\"\r\n}"
+						},
+						"url": {
+							"raw": "http://{{RABBITMQ_ENDPOINT}}/api/queues/{{vhost}}/{{RetrievePlanResponse}}/get",
+							"protocol": "http",
+							"host": [
+								"{{RABBITMQ_ENDPOINT}}"
+							],
+							"path": [
+								"api",
+								"queues",
+								"{{vhost}}",
+								"{{RetrievePlanResponse}}",
+								"get"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get resources changed event",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"\r",
+									"pm.test(\"Get message successfully\", () => {\r",
+									"    pm.expect(pm.response.code).to.equal(200);\r",
+									"\r",
+									"    var rabbitmqMessages = pm.response.json();\r",
+									"    pm.expect(rabbitmqMessages.length).to.equal(1);\r",
+									"\r",
+									"    var payload = JSON.parse(rabbitmqMessages[0].payload);\r",
+									"    console.log(payload);\r",
+									"});\r",
+									"\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {
+							"accept": true,
+							"content-type": true
+						}
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"count\": 1,\r\n    \"ackmode\": \"ack_requeue_false\",\r\n    \"encoding\": \"auto\"\r\n}"
+						},
+						"url": {
+							"raw": "http://{{RABBITMQ_ENDPOINT}}/api/queues/{{vhost}}/{{ResourcesChangedEventQueue}}/get",
+							"protocol": "http",
+							"host": [
+								"{{RABBITMQ_ENDPOINT}}"
+							],
+							"path": [
+								"api",
+								"queues",
+								"{{vhost}}",
+								"{{ResourcesChangedEventQueue}}",
+								"get"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get resources changed light event",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"\r",
+									"pm.test(\"Get message successfully\", () => {\r",
+									"    pm.expect(pm.response.code).to.equal(200);\r",
+									"\r",
+									"    var rabbitmqMessages = pm.response.json();\r",
+									"    pm.expect(rabbitmqMessages.length).to.equal(1);\r",
+									"\r",
+									"    var payload = JSON.parse(rabbitmqMessages[0].payload);\r",
+									"    console.log(payload);\r",
+									"});\r",
+									"\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {
+							"accept": true,
+							"content-type": true
+						}
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"count\": 1,\r\n    \"ackmode\": \"ack_requeue_false\",\r\n    \"encoding\": \"auto\"\r\n}"
+						},
+						"url": {
+							"raw": "http://{{RABBITMQ_ENDPOINT}}/api/queues/{{vhost}}/{{ResourcesChangedLightEventQueue}}/get",
+							"protocol": "http",
+							"host": [
+								"{{RABBITMQ_ENDPOINT}}"
+							],
+							"path": [
+								"api",
+								"queues",
+								"{{vhost}}",
+								"{{ResourcesChangedLightEventQueue}}",
+								"get"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "basic",
+		"basic": [
+			{
+				"key": "password",
+				"value": "guest",
+				"type": "string"
+			},
+			{
+				"key": "username",
+				"value": "guest",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"var uuid = require('uuid');",
+					"var moment = require('moment');",
+					"",
+					"function buildMassTransitMessage(message, messageType, messageResponseType, fhirVersion) {",
+					"    var mtMessage =",
+					"    {",
+					"        \"destinationAddress\": `rabbitmq://localhost/${messageType}`,",
+					"        \"messageType\": [",
+					"            `urn:message:${messageType}`",
+					"        ],",
+					"        \"headers\": {",
+					"            \"fhir-release\": `${fhirVersion}`",
+					"        }",
+					"    }",
+					"",
+					"    if (messageResponseType) {",
+					"        mtMessage.responseAddress = `rabbitmq://localhost/${messageResponseType}`;",
+					"        mtMessage.headers[\"MT-Request-AcceptType\"] = [",
+					"            `urn:message:${messageResponseType}`",
+					"        ];",
+					"    }",
+					"",
+					"    mtMessage.message = message;",
+					"",
+					"    return JSON.stringify(mtMessage);",
+					"}",
+					"",
+					"function buildRabbitMqMessage(massTransitMessage) {",
+					"    var message = {",
+					"        \"properties\": {},",
+					"        \"routing_key\": \"\",",
+					"        \"payload\": massTransitMessage,",
+					"        \"payload_encoding\": \"string\"",
+					"    };",
+					"",
+					"    return JSON.stringify(message);",
+					"}",
+					"",
+					"function buildInstructions(instructions) {",
+					"    return {",
+					"        \"instructions\": instructions",
+					"    };",
+					"}",
+					"",
+					"function buildPatient(family, id, version) {",
+					"    var resource =",
+					"    {",
+					"        \"resourceType\": \"Patient\",",
+					"        \"id\": id,",
+					"        \"meta\":",
+					"        {",
+					"            \"versionId\": version,",
+					"            \"lastUpdated\": moment().toISOString()",
+					"        },",
+					"        \"name\": [{ \"family\": family }]",
+					"    };",
+					"",
+					"    return resource;",
+					"}",
+					"",
+					"function buildTestMessage(instructions, messageType, messageResponseType, fhirVersion) {",
+					"    var plan = buildInstructions(instructions);",
+					"    var payload = buildMassTransitMessage(plan, messageType, messageResponseType, fhirVersion);",
+					"    var body = buildRabbitMqMessage(payload);",
+					"",
+					"    return body;",
+					"}",
+					"",
+					"utils =",
+					"{",
+					"    now: function () { return moment().toISOString(); },",
+					"    newId: function () { return uuid.v4(); },",
+					"    newVersion: function () { return uuid.v4(); },",
+					"    buildPatient,",
+					"    buildTestMessage",
+					"};",
+					"",
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "RABBITMQ_ENDPOINT",
+			"value": "localhost:15672"
+		},
+		{
+			"key": "vhost",
+			"value": "%2F",
+			"type": "string"
+		},
+		{
+			"key": "StorePlanCommand",
+			"value": "Firely.Server.Contracts.Messages.V1:ExecuteStorePlanCommand",
+			"type": "string"
+		},
+		{
+			"key": "StorePlanResponse",
+			"value": "Firely.Server.Contracts.Messages.V1:ExecuteStorePlanResponse_postman",
+			"type": "string"
+		},
+		{
+			"key": "RetrievePlanCommand",
+			"value": "Firely.Server.Contracts.Messages.V1:RetrievePlanCommand",
+			"type": "string"
+		},
+		{
+			"key": "RetrievePlanResponse",
+			"value": "Firely.Server.Contracts.Messages.V1:RetrievePlanResponse_postman",
+			"type": "string"
+		},
+		{
+			"key": "ResourcesChangedEvent",
+			"value": "Firely.Server.Contracts.Messages.V1:ResourcesChangedEvent",
+			"type": "string"
+		},
+		{
+			"key": "ResourcesChangedEventQueue",
+			"value": "Firely.Server.Contracts.Messages.V1:ResourcesChangedEvent_postman",
+			"type": "string"
+		},
+		{
+			"key": "ResourcesChangedLightEvent",
+			"value": "Firely.Server.Contracts.Messages.V1:ResourcesChangedLightEvent",
+			"type": "string"
+		},
+		{
+			"key": "ResourcesChangedLightEventQueue",
+			"value": "Firely.Server.Contracts.Messages.V1:ResourcesChangedLightEvent_postman",
+			"type": "string"
+		},
+		{
+			"key": "RequestBody",
+			"value": "",
+			"type": "string"
+		}
+	]
+}

@@ -1,0 +1,21 @@
+{
+    "items": [
+        {
+            "itemId": "0",
+            "resource": "{\"resourceType\": \"Patient\", \"meta\": { ...",
+            "status": {
+                "code": "Success", // "Success" | "BadRequest" | "Error" | "InternalServerError"
+                "details": null
+            }
+        },
+        {
+            "itemId": "1",
+            "resource": null,
+            "status": {
+                "code": "BadRequest",
+                "details": "BadRequestMissingItemId"
+            },
+            "message": "Missing ..."
+        }
+    ]
+}

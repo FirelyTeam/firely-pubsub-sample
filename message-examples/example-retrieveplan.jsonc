@@ -1,0 +1,20 @@
+{
+    "instructions": [
+        {
+            "itemId": "0",
+            "reference": {
+                "resourceType": "Patient",
+                "resourceId": "example-patient",
+                "version": "v1"
+            }
+        },
+        {
+            "itemId": "1",
+            "reference": {
+                "resourceType": "Patient",
+                "resourceId": "existing-patient",
+                "version": "v2"
+            }
+        }
+    ]
+}

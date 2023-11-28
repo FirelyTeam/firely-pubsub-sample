@@ -1,0 +1,13 @@
+{
+    "changes":[
+        {
+            "reference": {
+                "resourceType": "Patient",
+                "resourceId": "example-patient",
+                "version": "v1"
+            },
+            "Resource": "{\"resourceType\": \"Patient\", \"meta\": { ...",
+            "changeType": "create" // "create" | "update" | "delete"
+        }
+    ]
+}
