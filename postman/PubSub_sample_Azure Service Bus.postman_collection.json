@@ -1,0 +1,1072 @@
+{
+	"info": {
+		"_postman_id": "546fc383-0f06-4936-87c6-0159748142c7",
+		"name": "PubSub Tests Azure Service Bus",
+		"description": "### Not part of this collection\n\n- Create topic/subscription/queue in Azure Service Bus\n- Generate SAS token ([https://learn.microsoft.com/en-us/rest/api/eventhub/generate-sas-token](https://learn.microsoft.com/en-us/rest/api/eventhub/generate-sas-token))\n    \n\n### Send Message to Topic\n\n[https://learn.microsoft.com/en-us/rest/api/servicebus/send-message-to-queue?view=rest-servicebus-controlplane-2021-11-01](https://learn.microsoft.com/en-us/rest/api/servicebus/send-message-to-queue?view=rest-servicebus-controlplane-2021-11-01)\n\n### Retrive Message to Subscription/Queue (Destructive Read)\n\n[https://learn.microsoft.com/en-us/rest/api/servicebus/receive-and-delete-message-destructive-read?view=rest-servicebus-controlplane-2021-11-01](https://learn.microsoft.com/en-us/rest/api/servicebus/receive-and-delete-message-destructive-read?view=rest-servicebus-controlplane-2021-11-01)",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "15273726"
+	},
+	"item": [
+		{
+			"name": "Setup",
+			"item": [
+				{
+					"name": "StorePlanResponse",
+					"item": []
+				},
+				{
+					"name": "RetrievePlanResponse",
+					"item": []
+				},
+				{
+					"name": "ResourcesChangedEvent",
+					"item": []
+				},
+				{
+					"name": "ResourcesChangedLightEvent",
+					"item": []
+				}
+			]
+		},
+		{
+			"name": "Demo",
+			"item": [
+				{
+					"name": "create (without response)",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"var patient = utils.buildPatient(\"Bob\", \"patient-bob\", \"v1\");\r",
+									"\r",
+									"var instructions = [\r",
+									"    {\r",
+									"        \"itemId\": utils.newId(),\r",
+									"        \"resource\": JSON.stringify(patient),\r",
+									"        \"resourceType\": patient.resourceType,\r",
+									"        \"resourceId\": patient.id,\r",
+									"        \"currentVersion\": patient.meta.versionId,\r",
+									"        \"operation\": \"create\"\r",
+									"    }\r",
+									"];\r",
+									"\r",
+									"var body = utils.buildTestMessage(\r",
+									"    instructions,\r",
+									"    pm.collectionVariables.get(\"StorePlanCommand\"),\r",
+									"    \"\", \r",
+									"    \"\",\r",
+									"    \"R4\"\r",
+									");\r",
+									"\r",
+									"pm.collectionVariables.set(\"RequestBody\", body);\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Message is sent successfully\", () => {\r",
+									"    pm.expect(pm.response.code).to.equal(201);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {
+							"accept": true,
+							"content-type": true
+						}
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{{RequestBody}}"
+						},
+						"url": {
+							"raw": "https://{{NamespaceName}}.servicebus.windows.net/{{StorePlanCommandTopic}}/messages",
+							"protocol": "https",
+							"host": [
+								"{{NamespaceName}}",
+								"servicebus",
+								"windows",
+								"net"
+							],
+							"path": [
+								"{{StorePlanCommandTopic}}",
+								"messages"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "create (with response - queue)",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"var patient = utils.buildPatient(\"Bob\", \"patient-bob\", \"v1\");\r",
+									"\r",
+									"var instructions = [\r",
+									"    {\r",
+									"        \"itemId\": utils.newId(),\r",
+									"        \"resource\": JSON.stringify(patient),\r",
+									"        \"resourceType\": patient.resourceType,\r",
+									"        \"resourceId\": patient.id,\r",
+									"        \"currentVersion\": patient.meta.versionId,\r",
+									"        \"operation\": \"create\"\r",
+									"    }\r",
+									"];\r",
+									"\r",
+									"var body = utils.buildTestMessage(\r",
+									"    instructions,\r",
+									"    pm.collectionVariables.get(\"StorePlanCommand\"),\r",
+									"    pm.collectionVariables.get(\"StorePlanResponse\"),\r",
+									"    pm.collectionVariables.get(\"StorePlanResponseQueue\"),\r",
+									"    \"R4\"\r",
+									");\r",
+									"\r",
+									"pm.collectionVariables.set(\"RequestBody\", body);\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Message is sent successfully\", () => {\r",
+									"    pm.expect(pm.response.code).to.equal(201);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {
+							"accept": true,
+							"content-type": true
+						}
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{{RequestBody}}"
+						},
+						"url": {
+							"raw": "https://{{NamespaceName}}.servicebus.windows.net/{{StorePlanCommandTopic}}/messages",
+							"protocol": "https",
+							"host": [
+								"{{NamespaceName}}",
+								"servicebus",
+								"windows",
+								"net"
+							],
+							"path": [
+								"{{StorePlanCommandTopic}}",
+								"messages"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get response message (Destructive Read)",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Message successfully retrieved and deleted\", () => {\r",
+									"    pm.expect(pm.response.code).to.equal(200);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {
+							"accept": true,
+							"content-type": true
+						}
+					},
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "https://{{NamespaceName}}.servicebus.windows.net/{{StorePlanResponseQueue}}/messages/head",
+							"protocol": "https",
+							"host": [
+								"{{NamespaceName}}",
+								"servicebus",
+								"windows",
+								"net"
+							],
+							"path": [
+								"{{StorePlanResponseQueue}}",
+								"messages",
+								"head"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "create (with response - topic)",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"var patient = utils.buildPatient(\"Bob\", \"patient-bob\", \"v1\");\r",
+									"\r",
+									"var instructions = [\r",
+									"    {\r",
+									"        \"itemId\": utils.newId(),\r",
+									"        \"resource\": JSON.stringify(patient),\r",
+									"        \"resourceType\": patient.resourceType,\r",
+									"        \"resourceId\": patient.id,\r",
+									"        \"currentVersion\": patient.meta.versionId,\r",
+									"        \"operation\": \"create\"\r",
+									"    }\r",
+									"];\r",
+									"\r",
+									"var body = utils.buildTestMessage(\r",
+									"    instructions,\r",
+									"    pm.collectionVariables.get(\"StorePlanCommand\"),\r",
+									"    pm.collectionVariables.get(\"StorePlanResponse\"),\r",
+									"    `${pm.collectionVariables.get(\"StorePlanResponseTopic\")}?type=topic`,\r",
+									"    \"R4\"\r",
+									");\r",
+									"\r",
+									"pm.collectionVariables.set(\"RequestBody\", body);\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Message is sent successfully\", () => {\r",
+									"    pm.expect(pm.response.code).to.equal(201);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {
+							"accept": true,
+							"content-type": true
+						}
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{{RequestBody}}"
+						},
+						"url": {
+							"raw": "https://{{NamespaceName}}.servicebus.windows.net/{{StorePlanCommandTopic}}/messages",
+							"protocol": "https",
+							"host": [
+								"{{NamespaceName}}",
+								"servicebus",
+								"windows",
+								"net"
+							],
+							"path": [
+								"{{StorePlanCommandTopic}}",
+								"messages"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get response message (Destructive Read)",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Message successfully retrieved and deleted\", () => {\r",
+									"    pm.expect(pm.response.code).to.equal(200);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {
+							"accept": true,
+							"content-type": true
+						}
+					},
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "https://{{NamespaceName}}.servicebus.windows.net/{{StorePlanResponseQueue}}/messages/head",
+							"protocol": "https",
+							"host": [
+								"{{NamespaceName}}",
+								"servicebus",
+								"windows",
+								"net"
+							],
+							"path": [
+								"{{StorePlanResponseQueue}}",
+								"messages",
+								"head"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "retrieve (with response - queue)",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"var patient = utils.buildPatient(\"Bob\", \"patient-bob\", \"v1\");\r",
+									"\r",
+									"var instructions = [\r",
+									"    {\r",
+									"        \"itemId\": utils.newId(),\r",
+									"        \"reference\": {\r",
+									"            \"resourceType\": \"Patient\",\r",
+									"            \"resourceId\": \"patient-bob\",\r",
+									"            \"version\": \"v1\"\r",
+									"        }\r",
+									"    }\r",
+									"];\r",
+									"\r",
+									"var body = utils.buildTestMessage(\r",
+									"    instructions,\r",
+									"    pm.collectionVariables.get(\"RetrievePlanCommand\"),\r",
+									"    pm.collectionVariables.get(\"RetrievePlanResponse\"),\r",
+									"    pm.collectionVariables.get(\"RetrievePlanResponseQueue\"),\r",
+									"    \"R4\"\r",
+									");\r",
+									"\r",
+									"pm.collectionVariables.set(\"RequestBody\", body);\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Message is sent successfully\", () => {\r",
+									"    pm.expect(pm.response.code).to.equal(201);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {
+							"accept": true,
+							"content-type": true
+						}
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{{RequestBody}}"
+						},
+						"url": {
+							"raw": "https://{{NamespaceName}}.servicebus.windows.net/{{RetrievePlanCommandTopic}}/messages",
+							"protocol": "https",
+							"host": [
+								"{{NamespaceName}}",
+								"servicebus",
+								"windows",
+								"net"
+							],
+							"path": [
+								"{{RetrievePlanCommandTopic}}",
+								"messages"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get response message (Destructive Read)",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Message successfully retrieved and deleted\", () => {\r",
+									"    pm.expect(pm.response.code).to.equal(200);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {
+							"accept": true,
+							"content-type": true
+						}
+					},
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "https://{{NamespaceName}}.servicebus.windows.net/{{RetrievePlanResponseQueue}}/messages/head",
+							"protocol": "https",
+							"host": [
+								"{{NamespaceName}}",
+								"servicebus",
+								"windows",
+								"net"
+							],
+							"path": [
+								"{{RetrievePlanResponseQueue}}",
+								"messages",
+								"head"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "retrieve (with response - topic)",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"var patient = utils.buildPatient(\"Bob\", \"patient-bob\", \"v1\");\r",
+									"\r",
+									"var instructions = [\r",
+									"    {\r",
+									"        \"itemId\": utils.newId(),\r",
+									"        \"reference\": {\r",
+									"            \"resourceType\": \"Patient\",\r",
+									"            \"resourceId\": \"patient-bob\",\r",
+									"            \"version\": \"v1\"\r",
+									"        }\r",
+									"    }\r",
+									"];\r",
+									"\r",
+									"var body = utils.buildTestMessage(\r",
+									"    instructions,\r",
+									"    pm.collectionVariables.get(\"RetrievePlanCommand\"),\r",
+									"    pm.collectionVariables.get(\"RetrievePlanResponse\"),\r",
+									"    `${pm.collectionVariables.get(\"RetrievePlanResponseTopic\")}?type=topic`,\r",
+									"    \"R4\"\r",
+									");\r",
+									"\r",
+									"pm.collectionVariables.set(\"RequestBody\", body);\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Message is sent successfully\", () => {\r",
+									"    pm.expect(pm.response.code).to.equal(201);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {
+							"accept": true,
+							"content-type": true
+						}
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{{RequestBody}}"
+						},
+						"url": {
+							"raw": "https://{{NamespaceName}}.servicebus.windows.net/{{RetrievePlanCommandTopic}}/messages",
+							"protocol": "https",
+							"host": [
+								"{{NamespaceName}}",
+								"servicebus",
+								"windows",
+								"net"
+							],
+							"path": [
+								"{{RetrievePlanCommandTopic}}",
+								"messages"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get response message (Destructive Read)",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Message successfully retrieved and deleted\", () => {\r",
+									"    pm.expect(pm.response.code).to.equal(200);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {
+							"accept": true,
+							"content-type": true
+						}
+					},
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "https://{{NamespaceName}}.servicebus.windows.net/{{RetrievePlanResponseQueue}}/messages/head",
+							"protocol": "https",
+							"host": [
+								"{{NamespaceName}}",
+								"servicebus",
+								"windows",
+								"net"
+							],
+							"path": [
+								"{{RetrievePlanResponseQueue}}",
+								"messages",
+								"head"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get resources changed event (queue) (Destructive Read)",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Message successfully retrieved and deleted\", () => {\r",
+									"    pm.expect(pm.response.code).to.equal(200);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {
+							"accept": true,
+							"content-type": true
+						}
+					},
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "https://{{NamespaceName}}.servicebus.windows.net/{{ResourcesChangedEventQueue}}/messages/head",
+							"protocol": "https",
+							"host": [
+								"{{NamespaceName}}",
+								"servicebus",
+								"windows",
+								"net"
+							],
+							"path": [
+								"{{ResourcesChangedEventQueue}}",
+								"messages",
+								"head"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get resources changed light event (subscription) (Destructive Read)",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Message successfully retrieved and deleted\", () => {\r",
+									"    pm.expect(pm.response.code).to.equal(200);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {
+							"accept": true,
+							"content-type": true
+						}
+					},
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "https://{{NamespaceName}}.servicebus.windows.net/{{ResourcesChangedEventLightTopic}}/subscriptions/{{ResourcesChangedEventLightSubscription}}/messages/head",
+							"protocol": "https",
+							"host": [
+								"{{NamespaceName}}",
+								"servicebus",
+								"windows",
+								"net"
+							],
+							"path": [
+								"{{ResourcesChangedEventLightTopic}}",
+								"subscriptions",
+								"{{ResourcesChangedEventLightSubscription}}",
+								"messages",
+								"head"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "apikey",
+		"apikey": [
+			{
+				"key": "value",
+				"value": "{{SasToken}}",
+				"type": "string"
+			},
+			{
+				"key": "key",
+				"value": "Authorization",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"var uuid = require('uuid');",
+					"var moment = require('moment');",
+					"",
+					"function buildMassTransitMessage(message, messageType, messageResponseType, messageResponseAddress, fhirVersion) {",
+					"    var nameSpaceName = pm.collectionVariables.get('NamespaceName');",
+					"    var mtMessage =",
+					"    {",
+					"        \"messageType\": [",
+					"            `urn:message:${messageType}`",
+					"        ],",
+					"        \"headers\": {",
+					"            \"fhir-release\": `${fhirVersion}`",
+					"        }",
+					"    }",
+					"",
+					"    if (messageResponseType) {",
+					"        mtMessage.responseAddress = `sb://${nameSpaceName}.servicebus.windows.net/${messageResponseAddress}`;",
+					"        mtMessage.headers[\"MT-Request-AcceptType\"] = [",
+					"            `urn:message:${messageResponseType}`",
+					"        ];",
+					"    }",
+					"",
+					"    mtMessage.message = message;",
+					"",
+					"    return mtMessage;",
+					"}",
+					"",
+					"function buildAzureServiceBusMessage(serviceBusMessage) {",
+					"    // var message = {",
+					"    //     \"body\": serviceBusMessage",
+					"    // };",
+					"    return JSON.stringify(serviceBusMessage);",
+					"}",
+					"",
+					"function buildInstructions(instructions) {",
+					"    return {",
+					"        \"instructions\": instructions",
+					"    };",
+					"}",
+					"",
+					"function buildPatient(family, id, version) {",
+					"    var resource =",
+					"    {",
+					"        \"resourceType\": \"Patient\",",
+					"        \"id\": id,",
+					"        \"meta\":",
+					"        {",
+					"            \"versionId\": version,",
+					"            \"lastUpdated\": moment().toISOString()",
+					"        },",
+					"        \"name\": [{ \"family\": family }]",
+					"    };",
+					"",
+					"    return resource;",
+					"}",
+					"",
+					"function buildTestMessage(instructions, messageType, messageResponseType, messageResponseAddress, fhirVersion) {",
+					"    var plan = buildInstructions(instructions);",
+					"    var payload = buildMassTransitMessage(plan, messageType, messageResponseType, messageResponseAddress, fhirVersion);",
+					"    var body = buildAzureServiceBusMessage(payload);",
+					"",
+					"    return body;",
+					"}",
+					"",
+					"utils =",
+					"{",
+					"    now: function () { return moment().toISOString(); },",
+					"    newId: function () { return uuid.v4(); },",
+					"    newVersion: function () { return uuid.v4(); },",
+					"    buildPatient,",
+					"    buildTestMessage",
+					"};",
+					"",
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "StorePlanCommand",
+			"value": "Firely.Server.Contracts.Messages.V1:ExecuteStorePlanCommand",
+			"type": "string"
+		},
+		{
+			"key": "StorePlanResponse",
+			"value": "Firely.Server.Contracts.Messages.V1:ExecuteStorePlanResponse",
+			"type": "string"
+		},
+		{
+			"key": "RetrievePlanCommand",
+			"value": "Firely.Server.Contracts.Messages.V1:RetrievePlanCommand",
+			"type": "string"
+		},
+		{
+			"key": "RetrievePlanResponse",
+			"value": "Firely.Server.Contracts.Messages.V1:RetrievePlanResponse",
+			"type": "string"
+		},
+		{
+			"key": "ResourcesChangedEvent",
+			"value": "Firely.Server.Contracts.Messages.V1:ResourcesChangedEvent",
+			"type": "string"
+		},
+		{
+			"key": "ResourcesChangedLightEvent",
+			"value": "Firely.Server.Contracts.Messages.V1:ResourcesChangedLightEvent",
+			"type": "string"
+		},
+		{
+			"key": "RequestBody",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "SasToken",
+			"value": "SharedAccessSignature sr=<NAMESPACE NAME>.servicebus.windows.net&sig=<SHARED ACCESS KEY>&se=<TOKEN EXPIRY INSTANT>&skn=<SHARED KEY NAME>",
+			"type": "string"
+		},
+		{
+			"key": "SubscriptionId",
+			"value": "SubscriptionId",
+			"type": "string"
+		},
+		{
+			"key": "ResourceGroupName",
+			"value": "ResourceGroupName",
+			"type": "string"
+		},
+		{
+			"key": "NamespaceName",
+			"value": "NamespaceName",
+			"type": "string"
+		},
+		{
+			"key": "StorePlanCommandTopic",
+			"value": "Firely.Server.Contracts.Messages.V1/ExecuteStorePlanCommand",
+			"type": "string"
+		},
+		{
+			"key": "StorePlanResponseQueue",
+			"value": "StorePlanResponseQueue",
+			"type": "string"
+		},
+		{
+			"key": "StorePlanResponseTopic",
+			"value": "StorePlanResponseTopic",
+			"type": "string"
+		},
+		{
+			"key": "RetrievePlanCommandTopic",
+			"value": "Firely.Server.Contracts.Messages.V1/RetrievePlanCommand",
+			"type": "string"
+		},
+		{
+			"key": "RetrievePlanResponseQueue",
+			"value": "RetrievePlanResponseQueue",
+			"type": "string"
+		},
+		{
+			"key": "RetrievePlanResponseTopic",
+			"value": "RetrievePlanResponseTopic",
+			"type": "string"
+		},
+		{
+			"key": "ResourcesChangedEventQueue",
+			"value": "ResourcesChangedEventQueue",
+			"type": "string"
+		},
+		{
+			"key": "ResourcesChangedEventLightSubscription",
+			"value": "ResourcesChangedEventLightSubscription",
+			"type": "string"
+		},
+		{
+			"key": "ResourcesChangedEventLightTopic",
+			"value": "Firely.Server.Contracts.Messages.V1/ResourcesChangedLightEvent",
+			"type": "string"
+		}
+	]
+}
