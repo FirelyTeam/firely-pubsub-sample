@@ -1,0 +1,98 @@
+{
+  "resourceType": "Patient",
+  "meta": {
+    "profile": [ "http://www.alpha.alp/use-case/Patient-profile" ]
+  },
+  "text": {
+    "status": "generated",
+    "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><b>Patient:</b> Adam EVERYMAN, M, 16-Feb-1987, Cit.id 1020304050, AlphaId 622883245 \r\n        <ul><li>Previous name: Adam JONES</li><li>Address: 62, Anystreet, 59450 Alphatown. Home phone: 020 7422 3666</li></ul></div>"
+  },
+  "extension": [
+    {
+      "url": "http://hl7.org/fhir/StructureDefinition/patient-birthPlace",
+      "valueAddress": {
+        "city": "Portsmouth",
+        "country": "UK"
+      }
+    },
+    {
+      "url": "http://hl7.org/fhir/StructureDefinition/patient-disability",
+      "valueCodeableConcept": {
+        "coding": [
+          {
+            "system": "http://snomed.info/sct",
+            "code": "95859009",
+            "display": "Amputation of foot"
+          }
+        ]
+      }
+    }
+  ],
+  "identifier": [
+    {
+      "system": "http://www.miniaf.alp/citreg",
+      "value": "1020304050"
+    },
+    {
+      "system": "http://www.alpha-hospital.alp/patient-id",
+      "value": "622883245"
+    }
+  ],
+  "name": [
+    {
+      "family": "Everyman",
+      "given": [
+        "Adam"
+      ],
+      "prefix": [
+        "Mr."
+      ]
+    },
+    {
+      "use": "old",
+      "family": "Jones"
+    }
+  ],
+  "telecom": [
+    {
+      "system": "phone",
+      "value": "020 7422 3666",
+      "use": "home"
+    }
+  ],
+  "birthDate": "1987/16/02",
+  "address": [
+    {
+      "line": [
+        "62, Anystreet"
+      ],
+      "city": "Alphatown",
+      "postalCode": "59450"
+    }
+  ],
+  "communication": [
+    {
+      "language": {
+        "coding": [
+          {
+            "system": "urn:ietf:bcp:47",
+            "code": "en",
+            "display": "English"
+          }
+        ]
+      }
+    },
+    {
+      "language": {
+        "coding": [
+          {
+            "system": "urn:ietf:bcp:47",
+            "code": "fr",
+            "display": "French"
+          }
+        ]
+      },
+      "preferred": true
+    }
+  ]
+}
