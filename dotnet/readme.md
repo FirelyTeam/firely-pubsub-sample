@@ -59,4 +59,6 @@ Valid commands are:
                 u familyName patientId newPatientVersion currentPatientVersion
         Delete Patient
                 d patientId currentPatientVersion
+        Create Resources from directory
+                dir directoryPath
 ```

@@ -5,16 +5,19 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Firely.Server.Contracts.MassTransit;
 using Firely.Server.Contracts.Messages.V1;
+using Microsoft.Extensions.Options;
 
 namespace Firely.Server.MessageSender;
 
 public class UserInputProcessor
 {
+    private readonly ImportOptions _importOptions;
     private readonly PubSubClient _pubSubClient;
     
-    public UserInputProcessor(PubSubClient pubSubClient)
+    public UserInputProcessor(PubSubClient pubSubClient, IOptions<ImportOptions> importOptions)
     {
         _pubSubClient = pubSubClient;
+        _importOptions = importOptions.Value;
     }
     
     public async Task ProcessUserInput()
@@ -58,6 +61,24 @@ public class UserInputProcessor
                     if (CommandProcessor.BuildStorePlanItem(command, arguments) is { } storePlanItem)
                     {
                         storePlanItems.Add(storePlanItem);
+                        break;
+                    }
+                    badArguments = true;
+                    break;
+                case "dir":
+                    if (!arguments.Any())
+                    {
+                        if (string.IsNullOrEmpty(_importOptions.ImportDirectory))
+                        {
+                            Console.WriteLine("No directory specified.");
+                            break;
+                        }
+                        // Use directory in appsettings
+                        arguments = arguments.Prepend(_importOptions.ImportDirectory);
+                    }
+                    if (CommandProcessor.BuildStorePlanItems(command, arguments) is { } newStorePlanItems)
+                    {
+                        storePlanItems.AddRange(newStorePlanItems);
                         break;
                     }
                     badArguments = true;
@@ -110,9 +131,16 @@ public class UserInputProcessor
         try
         {
             var command = new ExecuteStorePlanCommand(storePlanItems);
-            Console.WriteLine($"Sending {nameof(ExecuteStorePlanCommand)}: '{JsonSerializer.Serialize(command)}'");
-            var response = await _pubSubClient.ExecuteStorePlan(command);
-            Console.WriteLine($"Response from {nameof(ExecuteStorePlanCommand)}: '{JsonSerializer.Serialize(response)}'");
+            Console.WriteLine($"Sending {nameof(ExecuteStorePlanCommand)} for {storePlanItems.Count} items: '{JsonSerializer.Serialize(command)}'");
+
+            // Allow multiple commands to be sent without awaiting 
+            _ = _pubSubClient.ExecuteStorePlan(command).ContinueWith(task =>
+            {
+                var response = task;
+                Console.WriteLine($"Response from {nameof(ExecuteStorePlanCommand)}: '{JsonSerializer.Serialize(response)}'");
+
+                // Optionally move original file to an archive folder
+            });
         }
         catch (Exception e)
         {
