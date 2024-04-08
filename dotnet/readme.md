@@ -37,7 +37,7 @@ The traces can then be viewed when browsing to http://localhost:16686.
 Start Firely server and make sure to enable the PubSub in the settings file as described in the 
 [documentation](https://docs.simplifier.net/projects/Firely-Server/en/latest/features_and_tools/pubsub.html).
 
-### Using the client
+### Using the client interactively
 Once RabbitMq and Firely Server are running, you can start the client using:
 ```
 dotnet run --project Firely.Server.MessageSender
@@ -61,4 +61,17 @@ Valid commands are:
                 d patientId currentPatientVersion
         Create Resources from directory
                 dir directoryPath
+```
+
+### Using the client to read from a directory
+Add your directory path to `appsettings.json`, example:
+```json
+  "ImportOptions": {
+    "ImportDirectory": "../test data"
+  }
+```
+
+Now run the client with the `import` command appended:
+```
+dotnet run --project Firely.Server.MessageSender import
 ```

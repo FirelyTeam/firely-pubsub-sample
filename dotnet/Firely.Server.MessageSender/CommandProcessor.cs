@@ -38,7 +38,7 @@ public static class CommandProcessor
     {
         var storePlanItems = command switch
         {
-            "dir" => CreateResourcesFromDirectory(args),
+            "import" => CreateResourcesFromDirectory(args),
             _ => null
         };
 
@@ -96,12 +96,9 @@ public static class CommandProcessor
         try
         {
             var directoryPath = args.FirstOrDefault();
-            if (directoryPath == null)
-            {
-                return null;
-            }
             var directory = new DirectoryInfo(directoryPath);
             files = directory.GetFiles("*.json", SearchOption.TopDirectoryOnly);
+            Console.WriteLine($"Found {files.Length} files in directory {directory.FullName}");
         }
         catch (Exception e)
         {

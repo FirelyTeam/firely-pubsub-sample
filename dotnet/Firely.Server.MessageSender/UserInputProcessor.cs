@@ -65,24 +65,6 @@ public class UserInputProcessor
                     }
                     badArguments = true;
                     break;
-                case "dir":
-                    if (!arguments.Any())
-                    {
-                        if (string.IsNullOrEmpty(_importOptions.ImportDirectory))
-                        {
-                            Console.WriteLine("No directory specified.");
-                            break;
-                        }
-                        // Use directory in appsettings
-                        arguments = arguments.Prepend(_importOptions.ImportDirectory);
-                    }
-                    if (CommandProcessor.BuildStorePlanItems(command, arguments) is { } newStorePlanItems)
-                    {
-                        storePlanItems.AddRange(newStorePlanItems);
-                        break;
-                    }
-                    badArguments = true;
-                    break;
                 default:
                     Console.WriteLine("Invalid command.");
                     PrintUsage();
@@ -104,11 +86,27 @@ public class UserInputProcessor
                 }
                 if (storePlanItems.Any())
                 {
-                    await RunExecuteStorePlan(storePlanItems);
+                    await RunExecuteStorePlanNoWait(storePlanItems);
                     storePlanItems.Clear();
                 }
             }
         }
+    }
+
+    public async Task ImportResourcesFromDirectory()
+    {
+        var directoryPath = _importOptions.ImportDirectory;
+        if (string.IsNullOrEmpty(directoryPath))
+        {
+            Console.WriteLine("No directory specified in appsettings ImportOptions.");
+            return;
+        }
+        if (CommandProcessor.BuildStorePlanItems("import", new[] {directoryPath}) is { } storePlanItems)
+        {
+            await RunExecuteStorePlan(storePlanItems);
+            // Optionally move successfully imported files to an archive folder
+        }
+        
     }
 
     private async Task RunRetrievePlan(List<RetrievePlanItem> items)
@@ -131,9 +129,24 @@ public class UserInputProcessor
         try
         {
             var command = new ExecuteStorePlanCommand(storePlanItems);
+            Console.WriteLine($"Sending {nameof(ExecuteStorePlanCommand)}: '{JsonSerializer.Serialize(command)}'");
+            var response = await _pubSubClient.ExecuteStorePlan(command);
+            Console.WriteLine($"Response from {nameof(ExecuteStorePlanCommand)}: '{JsonSerializer.Serialize(response)}'");
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+        }
+    }
+
+    private async Task RunExecuteStorePlanNoWait(List<StorePlanItem> storePlanItems)
+    {
+        try
+        {
+            var command = new ExecuteStorePlanCommand(storePlanItems);
             Console.WriteLine($"Sending {nameof(ExecuteStorePlanCommand)} for {storePlanItems.Count} items: '{JsonSerializer.Serialize(command)}'");
 
-            // Allow multiple commands to be sent without awaiting 
+            // Allow multiple commands to be sent without awaiting ("fire-and-forget")
             _ = _pubSubClient.ExecuteStorePlan(command).ContinueWith(task =>
             {
                 var response = task;
@@ -143,8 +156,6 @@ public class UserInputProcessor
                     return;
                 }
                 Console.WriteLine($"Response from {nameof(ExecuteStorePlanCommand)}: '{JsonSerializer.Serialize(response)}'");
-
-                // Optionally move original file to an archive folder
             });
         }
         catch (Exception e)
@@ -155,7 +166,7 @@ public class UserInputProcessor
 
     private static void PrintUsage()
     {
-        Console.WriteLine("Valid commands are:");
+        Console.WriteLine("Valid interactive commands are:");
         Console.WriteLine("\tQuit");
         Console.WriteLine("\t\tq ");
         Console.WriteLine("\tHelp");
@@ -168,8 +179,6 @@ public class UserInputProcessor
         Console.WriteLine("\t\tu familyName patientId newPatientVersion currentPatientVersion");
         Console.WriteLine("\tDelete Patient");
         Console.WriteLine("\t\td patientId currentPatientVersion");
-        Console.WriteLine("\tCreate Resources from directory");
-        Console.WriteLine("\t\td dir directoryPath");
     }
     
 }

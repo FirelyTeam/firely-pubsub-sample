@@ -44,9 +44,11 @@ public static class Program
 
                 var config = context.Configuration.GetRequiredSection("PubSub");
                 var messageBrokerOptions = config.GetRequiredSection("MessageBroker");
-                var messageBrokerHost = new Uri(messageBrokerOptions.GetRequiredSection("Host").Value);
+                var messageBrokerHost = messageBrokerOptions.GetRequiredSection("Host").Value;
                 var messageBrokerUser = messageBrokerOptions.GetRequiredSection("Username").Value;
                 var messageBrokerPassword = messageBrokerOptions.GetRequiredSection("Password").Value;
+
+                var oltpEndpoint = new Uri("http://localhost:4317");
 
                 services
                     .AddOpenTelemetry()
@@ -61,7 +63,7 @@ public static class Program
                         .AddSource(DiagnosticHeaders.DefaultListenerName) // MassTransit ActivitySource
                         // Uncomment to get trace from masstransit in the console
                         // .AddConsoleExporter() 
-                        .AddOtlpExporter(o => { o.Endpoint = messageBrokerHost; })
+                        .AddOtlpExporter(o => { o.Endpoint = oltpEndpoint; })
                     );
 
                 // RabbitMQ listener
@@ -74,7 +76,7 @@ public static class Program
                     configurator
                         .UsingRabbitMq((context, cfg) =>
                         {
-                            cfg.Host(messageBrokerHost.Host, h =>
+                            cfg.Host(messageBrokerHost, h =>
                             {
                                 h.Username(messageBrokerUser);
                                 h.Password(messageBrokerPassword);
@@ -101,17 +103,23 @@ public static class Program
                             var resourcesChangedLightMessageName = $"{resourcesChangedLightType.Namespace}:{resourcesChangedLightType.Name}";
                             var resourceChangedLightQueue = $"{resourcesChangedLightMessageName}_dotnet";
                             Console.WriteLine($"Setting up a queue and exchange {resourceChangedLightQueue} to get {resourcesChangedLightMessageName} events");
-                            cfg.ReceiveEndpoint(resourceChangedLightQueue, e =>
-                            {
-                                e.ConfigureConsumer<ResourcesChangedLightConsumer>(context);
-                            });
+                            cfg.ReceiveEndpoint(resourceChangedLightQueue, e => { e.ConfigureConsumer<ResourcesChangedLightConsumer>(context); });
                         });
                 });
             })
             .Build();
 
-        var service = host.Services.GetRequiredService<UserInputProcessor>();
 
-        await T.Task.WhenAny(host.RunAsync(), service.ProcessUserInput());
+        var userInputProcessor = host.Services.GetRequiredService<UserInputProcessor>();
+
+        // Import mode
+        if (args.Length > 0 && args[0] == "import")
+        {
+            await userInputProcessor.ImportResourcesFromDirectory();
+            return;
+        }
+
+        // Interactive mode
+        await T.Task.WhenAny(host.RunAsync(), userInputProcessor.ProcessUserInput());
     }
 }
