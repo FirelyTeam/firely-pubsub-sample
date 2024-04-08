@@ -137,6 +137,11 @@ public class UserInputProcessor
             _ = _pubSubClient.ExecuteStorePlan(command).ContinueWith(task =>
             {
                 var response = task;
+                if (task.IsFaulted)
+                {
+                    Console.WriteLine($"Error while executing store plan: {task.Exception}");
+                    return;
+                }
                 Console.WriteLine($"Response from {nameof(ExecuteStorePlanCommand)}: '{JsonSerializer.Serialize(response)}'");
 
                 // Optionally move original file to an archive folder
@@ -163,6 +168,8 @@ public class UserInputProcessor
         Console.WriteLine("\t\tu familyName patientId newPatientVersion currentPatientVersion");
         Console.WriteLine("\tDelete Patient");
         Console.WriteLine("\t\td patientId currentPatientVersion");
+        Console.WriteLine("\tCreate Resources from directory");
+        Console.WriteLine("\t\td dir directoryPath");
     }
     
 }

@@ -43,7 +43,10 @@ public static class Program
                 services.AddTransient<PubSubClient>(sp => new PubSubClient(sp.GetRequiredService<IBus>(), FhirRelease.R4));
 
                 var config = context.Configuration.GetRequiredSection("PubSub");
-                var messageBrokerHost = config.GetRequiredSection("MessageBroker").GetRequiredSection("Host").Value;
+                var messageBrokerOptions = config.GetRequiredSection("MessageBroker");
+                var messageBrokerHost = new Uri(messageBrokerOptions.GetRequiredSection("Host").Value);
+                var messageBrokerUser = messageBrokerOptions.GetRequiredSection("Username").Value;
+                var messageBrokerPassword = messageBrokerOptions.GetRequiredSection("Password").Value;
 
                 services
                     .AddOpenTelemetry()
@@ -58,7 +61,7 @@ public static class Program
                         .AddSource(DiagnosticHeaders.DefaultListenerName) // MassTransit ActivitySource
                         // Uncomment to get trace from masstransit in the console
                         // .AddConsoleExporter() 
-                        .AddOtlpExporter(o => { o.Endpoint = new Uri(messageBrokerHost); })
+                        .AddOtlpExporter(o => { o.Endpoint = messageBrokerHost; })
                     );
 
                 // RabbitMQ listener
@@ -71,6 +74,12 @@ public static class Program
                     configurator
                         .UsingRabbitMq((context, cfg) =>
                         {
+                            cfg.Host(messageBrokerHost.Host, h =>
+                            {
+                                h.Username(messageBrokerUser);
+                                h.Password(messageBrokerPassword);
+                            });
+                            
                             cfg.UseJsonSerializer();
                             cfg.ConfigureJsonSerializerOptions(o =>
                             {
@@ -95,7 +104,6 @@ public static class Program
                             cfg.ReceiveEndpoint(resourceChangedLightQueue, e =>
                             {
                                 e.ConfigureConsumer<ResourcesChangedLightConsumer>(context);
-                                // e.QueueExpiration = TimeSpan.FromMinutes(5);
                             });
                         });
                 });
