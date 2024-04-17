@@ -61,7 +61,7 @@ Valid commands are:
                 d patientId currentPatientVersion
 ```
 
-### Using the client to read from a directory
+### Using the client to import resources from a directory
 Add your directory path to `appsettings.json`, example:
 ```json
   "ImportOptions": {
@@ -69,7 +69,7 @@ Add your directory path to `appsettings.json`, example:
   }
 ```
 
-Now run the client with the `import` command appended:
+Now run the client with the `import` command appended. This will perform an upsert of FHIR JSON resources from this directory to Firely Server:
 ```
 dotnet run --project Firely.Server.MessageSender import
 ```
