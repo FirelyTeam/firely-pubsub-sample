@@ -38,7 +38,7 @@ public static class CommandProcessor
     {
         var storePlanItems = command switch
         {
-            "import" => CreateResourcesFromDirectory(args),
+            "import" => UpsertResourcesFromDirectory(args),
             _ => null
         };
 
@@ -90,7 +90,7 @@ public static class CommandProcessor
         return new StorePlanItem(MakeId(id!), p.ToJson(), p.TypeName, p.Id, p.VersionId, StorePlanItemOperation.Create);
     }
     
-    private static List<StorePlanItem>? CreateResourcesFromDirectory(IEnumerable<string> args)
+    private static List<StorePlanItem>? UpsertResourcesFromDirectory(IEnumerable<string> args)
     {
         FileInfo[]? files;
         try
