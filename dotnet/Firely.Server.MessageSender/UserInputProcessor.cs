@@ -20,11 +20,19 @@ public class UserInputProcessor
         _importOptions = importOptions.Value;
     }
     
-    public async Task ProcessUserInput()
+    public async Task ProcessUserInput(string[] args)
     {
+        // Import mode
+        if (args.Length > 0 && args[0] == "import")
+        {
+            await ImportResourcesFromDirectory();
+            return;
+        }
+
         List<StorePlanItem> storePlanItems = new();
         List<RetrievePlanItem> retrievePlanItems = new();
 
+        // Interactive mode
         var stop = false;
         while (!stop)
         {
@@ -86,7 +94,7 @@ public class UserInputProcessor
                 }
                 if (storePlanItems.Any())
                 {
-                    await RunExecuteStorePlanNoWait(storePlanItems);
+                    await RunExecuteStorePlan(storePlanItems);
                     storePlanItems.Clear();
                 }
             }
@@ -101,12 +109,12 @@ public class UserInputProcessor
             Console.WriteLine("No directory specified in appsettings ImportOptions.");
             return;
         }
-        if (CommandProcessor.BuildStorePlanItems("import", new[] {directoryPath}) is { } storePlanItems)
+        if (CommandProcessor.BuildStorePlanItems("import", new[]{ directoryPath }) is { } importStorePlanItems)
         {
-            await RunExecuteStorePlan(storePlanItems);
+            await RunExecuteStorePlan(importStorePlanItems);
             // Optionally move successfully imported files to an archive folder
         }
-        
+        Console.WriteLine("Import complete.");
     }
 
     private async Task RunRetrievePlan(List<RetrievePlanItem> items)
@@ -116,7 +124,7 @@ public class UserInputProcessor
             var command = new RetrievePlanCommand(items);
             Console.WriteLine($"Sending {nameof(RetrievePlanCommand)}: '{JsonSerializer.Serialize(command)}'");
             var response = await _pubSubClient.RetrievePlan(command);
-            Console.WriteLine($"Response from {nameof(RetrievePlanCommand)}: '{JsonSerializer.Serialize(response)}'");
+            Console.WriteLine($"\nResponse from {nameof(RetrievePlanCommand)}: '{JsonSerializer.Serialize(response)}'\n");
         }
         catch (Exception e)
         {
@@ -131,32 +139,7 @@ public class UserInputProcessor
             var command = new ExecuteStorePlanCommand(storePlanItems);
             Console.WriteLine($"Sending {nameof(ExecuteStorePlanCommand)}: '{JsonSerializer.Serialize(command)}'");
             var response = await _pubSubClient.ExecuteStorePlan(command);
-            Console.WriteLine($"Response from {nameof(ExecuteStorePlanCommand)}: '{JsonSerializer.Serialize(response)}'");
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine(e);
-        }
-    }
-
-    private async Task RunExecuteStorePlanNoWait(List<StorePlanItem> storePlanItems)
-    {
-        try
-        {
-            var command = new ExecuteStorePlanCommand(storePlanItems);
-            Console.WriteLine($"Sending {nameof(ExecuteStorePlanCommand)} for {storePlanItems.Count} items: '{JsonSerializer.Serialize(command)}'");
-
-            // Allow multiple commands to be sent without awaiting ("fire-and-forget")
-            _ = _pubSubClient.ExecuteStorePlan(command).ContinueWith(task =>
-            {
-                var response = task;
-                if (task.IsFaulted)
-                {
-                    Console.WriteLine($"Error while executing store plan: {task.Exception}");
-                    return;
-                }
-                Console.WriteLine($"Response from {nameof(ExecuteStorePlanCommand)}: '{JsonSerializer.Serialize(response)}'");
-            });
+            Console.WriteLine($"\nResponse from {nameof(ExecuteStorePlanCommand)}: '{JsonSerializer.Serialize(response)}'\n");
         }
         catch (Exception e)
         {
@@ -179,6 +162,7 @@ public class UserInputProcessor
         Console.WriteLine("\t\tu familyName patientId newPatientVersion currentPatientVersion");
         Console.WriteLine("\tDelete Patient");
         Console.WriteLine("\t\td patientId currentPatientVersion");
+        Console.WriteLine("To import from a directory, re-run with 'import' appended to the command line and the directory set in appsettings.");
     }
     
 }

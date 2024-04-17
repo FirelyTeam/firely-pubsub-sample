@@ -119,13 +119,13 @@ public static class CommandProcessor
                 string resourceType = resourceRootNode.GetResourceTypeIndicator();
 
                 // Optionally validate here
-
+                
                 string itemId = Guid.NewGuid().ToString();
-                // These will be generated
-                string? resourceId = null;
-                string? currentVersion = null;
+                // These can be generated
+                string? resourceId = resourceRootNode.Children("id").FirstOrDefault()?.Text;
+                string? currentVersion = resourceRootNode.Children("meta").Children("versionId").FirstOrDefault()?.Text;
 
-                var storePlanItem = new StorePlanItem(MakeId(itemId), resourceData, resourceType, resourceId, currentVersion, StorePlanItemOperation.Create);
+                var storePlanItem = new StorePlanItem(MakeId(itemId), resourceData, resourceType, resourceId, currentVersion, StorePlanItemOperation.Upsert);
                 storePlanItems.Add(storePlanItem);
             }
             catch (Exception e)

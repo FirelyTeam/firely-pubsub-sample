@@ -26,9 +26,7 @@ public static class Program
                 config.AddJsonFile("appsettings.json");
             })
             .ConfigureServices((context, services) =>
-            {
-                // TODO consider System.CommandLine.Builder
-                
+            {   
                 // CLI
                 services.AddTransient<UserInputProcessor>();
                 services.Configure<ImportOptions>(context.Configuration.GetSection(nameof(ImportOptions)));
@@ -48,7 +46,7 @@ public static class Program
                 var messageBrokerUser = messageBrokerOptions.GetRequiredSection("Username").Value;
                 var messageBrokerPassword = messageBrokerOptions.GetRequiredSection("Password").Value;
 
-                var oltpEndpoint = new Uri("http://localhost:4317");
+                var openTelemetryEndpoint = new Uri("http://localhost:4317");
 
                 services
                     .AddOpenTelemetry()
@@ -63,7 +61,7 @@ public static class Program
                         .AddSource(DiagnosticHeaders.DefaultListenerName) // MassTransit ActivitySource
                         // Uncomment to get trace from masstransit in the console
                         // .AddConsoleExporter() 
-                        .AddOtlpExporter(o => { o.Endpoint = oltpEndpoint; })
+                        .AddOtlpExporter(o => { o.Endpoint = openTelemetryEndpoint; })
                     );
 
                 // RabbitMQ listener
@@ -112,14 +110,6 @@ public static class Program
 
         var userInputProcessor = host.Services.GetRequiredService<UserInputProcessor>();
 
-        // Import mode
-        if (args.Length > 0 && args[0] == "import")
-        {
-            await userInputProcessor.ImportResourcesFromDirectory();
-            return;
-        }
-
-        // Interactive mode
-        await T.Task.WhenAny(host.RunAsync(), userInputProcessor.ProcessUserInput());
+        await T.Task.WhenAny(host.RunAsync(), userInputProcessor.ProcessUserInput(args));
     }
 }
