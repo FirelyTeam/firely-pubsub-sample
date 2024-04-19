@@ -62,14 +62,7 @@ Valid commands are:
 ```
 
 ### Using the client to import resources from a directory
-Add your directory path to `appsettings.json`, example:
-```json
-  "ImportOptions": {
-    "ImportDirectory": "../test data"
-  }
+Run the client with the `import <directoryPath>` command appended. This will perform an upsert of FHIR JSON resources from this directory to Firely Server:
 ```
-
-Now run the client with the `import` command appended. This will perform an upsert of FHIR JSON resources from this directory to Firely Server:
-```
-dotnet run --project Firely.Server.MessageSender import
+dotnet run --project Firely.Server.MessageSender import "./test data"
 ```

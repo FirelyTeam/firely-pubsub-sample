@@ -11,21 +11,25 @@ namespace Firely.Server.MessageSender;
 
 public class UserInputProcessor
 {
-    private readonly ImportOptions _importOptions;
     private readonly PubSubClient _pubSubClient;
     
-    public UserInputProcessor(PubSubClient pubSubClient, IOptions<ImportOptions> importOptions)
+    public UserInputProcessor(PubSubClient pubSubClient)
     {
         _pubSubClient = pubSubClient;
-        _importOptions = importOptions.Value;
     }
     
     public async Task ProcessUserInput(string[] args)
     {
         // Import mode
-        if (args.Length > 0 && args[0] == "import")
+        if (args.FirstOrDefault() == "import")
         {
-            await ImportResourcesFromDirectory();
+            var directoryPath = args.ElementAtOrDefault(1);
+            if (string.IsNullOrEmpty(directoryPath))
+            {
+                Console.WriteLine("No directory specified as first argument. Exiting...");
+                return;
+            }
+            await ImportResourcesFromDirectory(directoryPath);
             return;
         }
 
@@ -101,20 +105,13 @@ public class UserInputProcessor
         }
     }
 
-    public async Task ImportResourcesFromDirectory()
+    public async Task ImportResourcesFromDirectory(string directoryPath)
     {
-        var directoryPath = _importOptions.ImportDirectory;
-        if (string.IsNullOrEmpty(directoryPath))
-        {
-            Console.WriteLine("No directory specified in appsettings ImportOptions.");
-            return;
-        }
         if (CommandProcessor.BuildStorePlanItems("import", new[]{ directoryPath }) is { } importStorePlanItems)
         {
             await RunExecuteStorePlan(importStorePlanItems);
             // Optionally move successfully imported files to an archive folder
         }
-        Console.WriteLine("Import complete.");
     }
 
     private async Task RunRetrievePlan(List<RetrievePlanItem> items)
@@ -162,7 +159,7 @@ public class UserInputProcessor
         Console.WriteLine("\t\tu familyName patientId newPatientVersion currentPatientVersion");
         Console.WriteLine("\tDelete Patient");
         Console.WriteLine("\t\td patientId currentPatientVersion");
-        Console.WriteLine("To import from a directory, re-run with 'import' appended to the command line and the directory set in appsettings.");
+        Console.WriteLine("To import from a directory, re-run with 'import <directoryPath>' appended to the command line.");
     }
     
 }

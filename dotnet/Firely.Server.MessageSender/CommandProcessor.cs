@@ -95,7 +95,7 @@ public static class CommandProcessor
         FileInfo[]? files;
         try
         {
-            var directoryPath = args.FirstOrDefault();
+            var directoryPath = args.First();
             var directory = new DirectoryInfo(directoryPath);
             files = directory.GetFiles("*.json", SearchOption.TopDirectoryOnly);
             Console.WriteLine($"Found {files.Length} files in directory {directory.FullName}");

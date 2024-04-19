@@ -21,15 +21,15 @@ public static class Program
     public static async T.Task Main(string[] args)
     {
         var host = Host.CreateDefaultBuilder(args)
+            .UseContentRoot(AppContext.BaseDirectory)
             .ConfigureAppConfiguration((hostingContext, config) =>
             {
-                config.AddJsonFile("appsettings.json");
+                config.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
             })
             .ConfigureServices((context, services) =>
             {   
                 // CLI
                 services.AddTransient<UserInputProcessor>();
-                services.Configure<ImportOptions>(context.Configuration.GetSection(nameof(ImportOptions)));
                 
                 // PubSub Client
                 Type executeStorePlanCommandType = typeof(ExecuteStorePlanCommand);
