@@ -37,7 +37,7 @@ The traces can then be viewed when browsing to http://localhost:16686.
 Start Firely server and make sure to enable the PubSub in the settings file as described in the 
 [documentation](https://docs.simplifier.net/projects/Firely-Server/en/latest/features_and_tools/pubsub.html).
 
-### Using the client
+### Using the client interactively
 Once RabbitMq and Firely Server are running, you can start the client using:
 ```
 dotnet run --project Firely.Server.MessageSender
@@ -59,4 +59,10 @@ Valid commands are:
                 u familyName patientId newPatientVersion currentPatientVersion
         Delete Patient
                 d patientId currentPatientVersion
+```
+
+### Using the client to import resources from a directory
+Run the client with the `import <directoryPath>` command appended. This will perform an upsert of FHIR JSON resources from this directory to Firely Server:
+```
+dotnet run --project Firely.Server.MessageSender import "./test data"
 ```

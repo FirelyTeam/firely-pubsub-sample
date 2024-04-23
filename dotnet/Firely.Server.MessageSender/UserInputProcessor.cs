@@ -5,6 +5,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Firely.Server.Contracts.MassTransit;
 using Firely.Server.Contracts.Messages.V1;
+using Microsoft.Extensions.Options;
 
 namespace Firely.Server.MessageSender;
 
@@ -17,11 +18,25 @@ public class UserInputProcessor
         _pubSubClient = pubSubClient;
     }
     
-    public async Task ProcessUserInput()
+    public async Task ProcessUserInput(string[] args)
     {
+        // Import mode
+        if (args.FirstOrDefault() == "import")
+        {
+            var directoryPath = args.ElementAtOrDefault(1);
+            if (string.IsNullOrEmpty(directoryPath))
+            {
+                Console.WriteLine("No directory specified as first argument. Exiting...");
+                return;
+            }
+            await ImportResourcesFromDirectory(directoryPath);
+            return;
+        }
+
         List<StorePlanItem> storePlanItems = new();
         List<RetrievePlanItem> retrievePlanItems = new();
 
+        // Interactive mode
         var stop = false;
         while (!stop)
         {
@@ -90,6 +105,15 @@ public class UserInputProcessor
         }
     }
 
+    public async Task ImportResourcesFromDirectory(string directoryPath)
+    {
+        if (CommandProcessor.BuildStorePlanItems("import", new[]{ directoryPath }) is { } importStorePlanItems)
+        {
+            await RunExecuteStorePlan(importStorePlanItems);
+            // Optionally move successfully imported files to an archive folder
+        }
+    }
+
     private async Task RunRetrievePlan(List<RetrievePlanItem> items)
     {
         try
@@ -97,7 +121,7 @@ public class UserInputProcessor
             var command = new RetrievePlanCommand(items);
             Console.WriteLine($"Sending {nameof(RetrievePlanCommand)}: '{JsonSerializer.Serialize(command)}'");
             var response = await _pubSubClient.RetrievePlan(command);
-            Console.WriteLine($"Response from {nameof(RetrievePlanCommand)}: '{JsonSerializer.Serialize(response)}'");
+            Console.WriteLine($"\nResponse from {nameof(RetrievePlanCommand)}: '{JsonSerializer.Serialize(response)}'\n");
         }
         catch (Exception e)
         {
@@ -112,7 +136,7 @@ public class UserInputProcessor
             var command = new ExecuteStorePlanCommand(storePlanItems);
             Console.WriteLine($"Sending {nameof(ExecuteStorePlanCommand)}: '{JsonSerializer.Serialize(command)}'");
             var response = await _pubSubClient.ExecuteStorePlan(command);
-            Console.WriteLine($"Response from {nameof(ExecuteStorePlanCommand)}: '{JsonSerializer.Serialize(response)}'");
+            Console.WriteLine($"\nResponse from {nameof(ExecuteStorePlanCommand)}: '{JsonSerializer.Serialize(response)}'\n");
         }
         catch (Exception e)
         {
@@ -122,7 +146,7 @@ public class UserInputProcessor
 
     private static void PrintUsage()
     {
-        Console.WriteLine("Valid commands are:");
+        Console.WriteLine("Valid interactive commands are:");
         Console.WriteLine("\tQuit");
         Console.WriteLine("\t\tq ");
         Console.WriteLine("\tHelp");
@@ -135,6 +159,7 @@ public class UserInputProcessor
         Console.WriteLine("\t\tu familyName patientId newPatientVersion currentPatientVersion");
         Console.WriteLine("\tDelete Patient");
         Console.WriteLine("\t\td patientId currentPatientVersion");
+        Console.WriteLine("To import from a directory, re-run with 'import <directoryPath>' appended to the command line.");
     }
     
 }

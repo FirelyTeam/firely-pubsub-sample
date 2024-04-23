@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Firely.Server.Contracts.Messages.V1;
 using Hl7.Fhir.Model;
 using Hl7.Fhir.Serialization;
+using Hl7.Fhir.ElementModel;
 using ResourceReference = Firely.Server.Contracts.Messages.V1.ResourceReference;
 
 namespace Firely.Server.MessageSender;
@@ -31,6 +33,16 @@ public static class CommandProcessor
         };
 
         return storePlanItem;
+    }
+    public static List<StorePlanItem>? BuildStorePlanItems(string command, IEnumerable<string> args)
+    {
+        var storePlanItems = command switch
+        {
+            "import" => UpsertResourcesFromDirectory(args),
+            _ => null
+        };
+
+        return storePlanItems;
     }
     
     private static T Get<T, V>(IEnumerable<V> args, Func<IEnumerable<V>, V?, T> f)
@@ -78,6 +90,55 @@ public static class CommandProcessor
         return new StorePlanItem(MakeId(id!), p.ToJson(), p.TypeName, p.Id, p.VersionId, StorePlanItemOperation.Create);
     }
     
+    private static List<StorePlanItem>? UpsertResourcesFromDirectory(IEnumerable<string> args)
+    {
+        FileInfo[]? files;
+        try
+        {
+            var directoryPath = args.First();
+            var directory = new DirectoryInfo(directoryPath);
+            files = directory.GetFiles("*.json", SearchOption.TopDirectoryOnly);
+            Console.WriteLine($"Found {files.Length} files in directory {directory.FullName}");
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            return null;
+        }
+
+        // Get the resources
+        List<StorePlanItem> storePlanItems = new();
+        foreach (var file in files)
+        {
+            try
+            {
+                string resourceData = File.ReadAllText(file.FullName);
+
+                // Get resource type using untyped style parsing
+                ISourceNode resourceRootNode = FhirJsonNode.Parse(resourceData);
+                string resourceType = resourceRootNode.GetResourceTypeIndicator();
+
+                // Optionally validate here
+                
+                string itemId = Guid.NewGuid().ToString();
+                // These can be generated
+                string? resourceId = resourceRootNode.Children("id").FirstOrDefault()?.Text;
+                string? currentVersion = resourceRootNode.Children("meta").Children("versionId").FirstOrDefault()?.Text;
+
+                var storePlanItem = new StorePlanItem(MakeId(itemId), resourceData, resourceType, resourceId, currentVersion, StorePlanItemOperation.Upsert);
+                storePlanItems.Add(storePlanItem);
+            }
+            catch (Exception e)
+            {
+                var message = $"Error: ({e.Message}). Skipping...";
+                System.Diagnostics.Debug.WriteLine(message);
+            }
+        }
+
+        return storePlanItems;
+    }
+    
+
     private static StorePlanItem UpdatePatient(IEnumerable<string> args, bool upsert)
     {
         var (family, id, newVid, currentVid) = get4(args);
