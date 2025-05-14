@@ -16,12 +16,12 @@ BLOB_STORAGE_CONNECTION_STR = os.getenv("BLOB_STORAGE_CONNECTION_STR")
 BLOB_STORAGE_CONTAINER_NAME = os.getenv("BLOB_STORAGE_CONTAINER_NAME")
 FHIR_RELEASE = os.getenv("FHIR_RELEASE", "R4")
 
-def upload_payload_to_blob_storage(container_client, resource):
+def upload_payload_to_blob_storage(container_client, payload):
     try:
         blob_name = str(uuid.uuid4()) + ".json"
         blob_client = container_client.get_blob_client(blob_name)
 
-        resource_data = json.dumps(resource)
+        resource_data = json.dumps(payload)
         blob_client.upload_blob(resource_data, overwrite=True)
 
         print(f"Uploaded resource to Blob Storage: {blob_client.url}")
