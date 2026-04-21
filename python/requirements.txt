@@ -9,7 +9,7 @@ dotenv==0.9.9
 idna==3.10
 isodate==0.7.2
 pycparser==2.22
-python-dotenv==1.1.0
+python-dotenv==1.2.2
 requests==2.33.0
 six==1.17.0
 typing_extensions==4.13.2
