@@ -1,7 +1,7 @@
 azure-core==1.38.0
 azure-servicebus==7.14.2
 azure-storage-blob==12.25.1
-certifi==2025.4.26
+certifi==2026.10.19
 cffi==1.17.1
 charset-normalizer==3.4.2
 cryptography==50.0.0
